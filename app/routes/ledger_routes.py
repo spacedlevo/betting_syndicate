@@ -2,6 +2,8 @@
 Ledger routes for viewing transactions and adding contributions.
 """
 
+from typing import Optional
+
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -28,8 +30,8 @@ def is_season_frozen(season: Season) -> bool:
 @router.get("/", response_class=HTMLResponse)
 async def list_ledger(
     request: Request,
-    player_id: int = None,
-    entry_type: str = None,
+    player_id: Optional[str] = None,
+    entry_type: Optional[str] = None,
     page: int = 1,
     db: Session = Depends(get_db)
 ):
@@ -41,10 +43,11 @@ async def list_ledger(
     if season:
         query = query.filter(LedgerEntry.season_id == season.id)
 
-    if player_id:
-        query = query.filter(LedgerEntry.player_id == player_id)
+    # Handle empty string from form (when "All players" is selected)
+    if player_id and player_id.strip():
+        query = query.filter(LedgerEntry.player_id == int(player_id))
 
-    if entry_type:
+    if entry_type and entry_type.strip():
         query = query.filter(LedgerEntry.entry_type == entry_type)
 
     # Pagination
@@ -63,13 +66,17 @@ async def list_ledger(
     # Entry types for filter
     entry_types = ['contribution', 'bet_placed', 'winnings_share', 'bet_void', 'payout']
 
+    # Convert player_id to int for template comparison, or None if empty
+    current_player_id = int(player_id) if player_id and player_id.strip() else None
+    current_entry_type = entry_type if entry_type and entry_type.strip() else None
+
     return templates.TemplateResponse("ledger/list.html", {
         "request": request,
         "entries": entries,
         "players": players,
         "entry_types": entry_types,
-        "current_player_id": player_id,
-        "current_entry_type": entry_type,
+        "current_player_id": current_player_id,
+        "current_entry_type": current_entry_type,
         "page": page,
         "total": total,
         "per_page": per_page,
