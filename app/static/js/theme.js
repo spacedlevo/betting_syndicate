@@ -55,7 +55,7 @@
         }
     }
 
-    // Initialize on page load
+    // Initialize
     function init() {
         const theme = getStoredTheme();
         applyTheme(theme);
@@ -72,17 +72,20 @@
         const navLinks = document.getElementById('nav-links');
         const navActions = document.getElementById('nav-actions');
 
-        if (mobileMenuToggle && navLinks && navActions) {
-            mobileMenuToggle.addEventListener('click', function() {
-                navLinks.classList.toggle('active');
-                navActions.classList.toggle('active');
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (navLinks) navLinks.classList.toggle('active');
+                if (navActions) navActions.classList.toggle('active');
             });
+        }
 
-            // Close menu when clicking a link
+        // Close menu when clicking a nav link
+        if (navLinks) {
             navLinks.querySelectorAll('a').forEach(function(link) {
                 link.addEventListener('click', function() {
                     navLinks.classList.remove('active');
-                    navActions.classList.remove('active');
+                    if (navActions) navActions.classList.remove('active');
                 });
             });
         }
@@ -91,10 +94,6 @@
     // Apply theme immediately to prevent flash
     applyTheme(getStoredTheme());
 
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    // Run init - script is at end of body so DOM is ready
+    init();
 })();

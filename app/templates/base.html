@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Betting Syndicate{% endblock %}</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    <script src="/static/js/theme.js"></script>
+    <script>
+        // Apply theme immediately to prevent flash
+        (function() {
+            var theme = localStorage.getItem('theme-preference');
+            if (theme && theme !== 'system') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        })();
+    </script>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -53,6 +61,7 @@
         <p>Betting Syndicate Manager v1.0</p>
     </footer>
 
+    <script src="/static/js/theme.js"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>
