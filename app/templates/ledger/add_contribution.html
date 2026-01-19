@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Add Contributions - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Add Weekly Contributions</h1>
+</div>
+
+{% if not season %}
+<div class="alert alert-warning">
+    No active season. Please <a href="/seasons/new">create a season</a> first.
+</div>
+{% elif not players %}
+<div class="alert alert-warning">
+    No active players in this season. Please <a href="/players">add players</a> first.
+</div>
+{% else %}
+<div class="card" style="max-width: 600px;">
+    <div class="alert alert-info">
+        Select the players who have paid their weekly contribution. Default amount is &pound;5.00.
+    </div>
+
+    <form method="post" action="/ledger/contribute">
+        <div class="form-group">
+            <label>Select Players</label>
+            <div class="checkbox-group" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); padding: 1rem; border-radius: 0.375rem;">
+                {% for player in players %}
+                <label class="checkbox-item" style="width: 100%; padding: 0.5rem; margin-bottom: 0.25rem;">
+                    <input type="checkbox" name="player_ids" value="{{ player.id }}">
+                    {{ player.name }}
+                </label>
+                {% endfor %}
+            </div>
+            <div style="margin-top: 0.5rem;">
+                <button type="button" onclick="selectAll(true)" class="btn btn-sm btn-outline">Select All</button>
+                <button type="button" onclick="selectAll(false)" class="btn btn-sm btn-outline">Deselect All</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Amount per Player (&pound;)</label>
+            <input type="number" id="amount" name="amount" step="0.01" min="0.01" required value="{{ default_amount }}">
+        </div>
+
+        <div class="form-group">
+            <label for="entry_date">Date</label>
+            <input type="date" id="entry_date" name="entry_date" required>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Add Contributions</button>
+            <a href="/" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Set default date to today
+    document.getElementById('entry_date').valueAsDate = new Date();
+
+    function selectAll(checked) {
+        document.querySelectorAll('input[name="player_ids"]').forEach(cb => {
+            cb.checked = checked;
+        });
+    }
+</script>
+{% endblock %}

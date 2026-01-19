@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Bets - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Bets</h1>
+    <a href="/bets/new" class="btn btn-primary">Place New Bet</a>
+</div>
+
+<!-- Filter Tabs -->
+<div class="quick-actions" style="margin-bottom: 1rem;">
+    <a href="/bets" class="btn {% if not current_status %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+    <a href="/bets?status=pending" class="btn {% if current_status == 'pending' %}btn-primary{% else %}btn-outline{% endif %}">Pending</a>
+    <a href="/bets?status=won" class="btn {% if current_status == 'won' %}btn-primary{% else %}btn-outline{% endif %}">Won</a>
+    <a href="/bets?status=lost" class="btn {% if current_status == 'lost' %}btn-primary{% else %}btn-outline{% endif %}">Lost</a>
+    <a href="/bets?status=void" class="btn {% if current_status == 'void' %}btn-primary{% else %}btn-outline{% endif %}">Void</a>
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Placed By</th>
+                    <th>Description</th>
+                    <th>Odds</th>
+                    <th class="text-right">Stake</th>
+                    <th>Status</th>
+                    <th class="text-right">Return</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bet in bets %}
+                <tr>
+                    <td>{{ bet.bet_date.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ bet.placed_by_player.name }}</td>
+                    <td>{{ bet.description[:50] }}{% if bet.description|length > 50 %}...{% endif %}</td>
+                    <td>{{ bet.odds or '-' }}</td>
+                    <td class="text-right money">&pound;{{ "%.2f"|format(bet.stake) }}</td>
+                    <td>
+                        <span class="badge badge-{{ bet.status }}">{{ bet.status }}</span>
+                    </td>
+                    <td class="text-right money">
+                        {% if bet.winnings %}
+                            &pound;{{ "%.2f"|format(bet.winnings) }}
+                        {% elif bet.status == 'pending' and bet.odds %}
+                            <span class="potential-return" data-stake="{{ bet.stake }}" data-odds="{{ bet.odds }}" style="color: var(--text-muted);">-</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if bet.status == 'pending' %}
+                        <a href="/bets/{{ bet.id }}/result" class="btn btn-sm btn-secondary">Update</a>
+                        {% else %}
+                        <a href="/bets/{{ bet.id }}" class="btn btn-sm btn-outline">View</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not bets %}
+                <tr>
+                    <td colspan="8" class="text-center" style="color: var(--text-muted);">No bets found</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function parseOdds(oddsStr) {
+        if (!oddsStr) return null;
+
+        const odds = oddsStr.trim().toLowerCase();
+
+        // Handle "evens" or "even"
+        if (odds === 'evens' || odds === 'even') {
+            return 2.0;
+        }
+
+        // Handle fractional odds (e.g., "5/1", "11/4")
+        if (odds.includes('/')) {
+            const parts = odds.split('/');
+            if (parts.length === 2) {
+                const numerator = parseFloat(parts[0]);
+                const denominator = parseFloat(parts[1]);
+                if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+                    return (numerator / denominator) + 1;
+                }
+            }
+            return null;
+        }
+
+        // Handle decimal odds (e.g., "2.5", "1.5")
+        const decimalOdds = parseFloat(odds);
+        if (!isNaN(decimalOdds) && decimalOdds > 0) {
+            return decimalOdds;
+        }
+
+        return null;
+    }
+
+    // Calculate potential returns for pending bets
+    document.querySelectorAll('.potential-return').forEach(function(el) {
+        const stake = parseFloat(el.dataset.stake);
+        const oddsStr = el.dataset.odds;
+        const decimalOdds = parseOdds(oddsStr);
+
+        if (decimalOdds !== null && stake > 0) {
+            const potentialReturn = stake * decimalOdds;
+            el.textContent = '£' + potentialReturn.toFixed(2);
+            el.style.color = 'var(--success-color)';
+            el.style.fontStyle = 'italic';
+            el.title = 'Potential return (profit: £' + (potentialReturn - stake).toFixed(2) + ')';
+        }
+    });
+</script>
+{% endblock %}

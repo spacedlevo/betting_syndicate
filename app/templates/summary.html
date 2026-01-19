@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betting Syndicate Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #eee;
+            --text-muted: #888;
+            --primary-color: #4a9eff;
+            --success-color: #4ade80;
+            --danger-color: #f87171;
+            --warning-color: #fbbf24;
+            --border-color: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .header .date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .highlight-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(74, 158, 255, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .highlight-box .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .highlight-box .value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 6px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+        }
+
+        .stat-item .value {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .stat-item .label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .positive { color: var(--success-color); }
+        .negative { color: var(--danger-color); }
+        .warning { color: var(--warning-color); }
+
+        .assigned-players {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .assigned-player {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            height: 220px;
+            margin-top: 8px;
+        }
+
+        .player-list {
+            font-size: 0.75rem;
+        }
+
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .player-row:last-child {
+            border-bottom: none;
+        }
+
+        .player-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .player-stat {
+            width: 55px;
+            text-align: right;
+            font-size: 0.7rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 600;
+        }
+
+        .badge-owes {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--danger-color);
+        }
+
+        .badge-budget {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success-color);
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    {% if not season %}
+    <div class="section">
+        <p style="text-align: center; color: var(--text-muted);">No active season</p>
+    </div>
+    {% else %}
+
+    <div class="header">
+        <h1>Betting Syndicate - Week {{ weeks_elapsed }}</h1>
+        <div class="date">{{ today.strftime('%d %B %Y') }}</div>
+    </div>
+
+    <!-- Bank & Payout -->
+    <div class="section">
+        <div class="highlight-box">
+            <div>
+                <div class="label">Payout</div>
+            </div>
+            <div class="value">&pound;{{ "%.2f"|format(share_per_player) }}</div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="value">&pound;{{ "%.2f"|format(bank_balance) }}</div>
+                <div class="label">Bank</div>
+            </div>
+            <div class="stat-item">
+                <div class="value {% if profit_loss >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if profit_loss >= 0 %}+{% endif %}&pound;{{ "%.2f"|format(profit_loss) }}
+                </div>
+                <div class="label">Profit/Loss</div>
+            </div>
+            <div class="stat-item">
+                <div class="value {% if profit_percentage >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if profit_percentage >= 0 %}+{% endif %}{{ "%.1f"|format(profit_percentage) }}%
+                </div>
+                <div class="label">ROI</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- This Week's Betters -->
+    {% if assigned_players %}
+    <div class="section">
+        <div class="section-title">This Week's Betters</div>
+        <div class="assigned-players">
+            {% for name in assigned_players %}
+            <span class="assigned-player">{{ name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Winnings Chart -->
+    <div class="section">
+        <div class="section-title">Winnings Ranking</div>
+        <div class="chart-container">
+            <canvas id="winningsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Player Status Table -->
+    <div class="section">
+        <div class="section-title">Player Status</div>
+        <div class="player-list">
+            <div class="player-row" style="color: var(--text-muted); font-size: 0.65rem; border-bottom: 1px solid var(--border-color);">
+                <div class="player-name">Player</div>
+                <div class="player-stat">Won</div>
+                <div class="player-stat">Budget</div>
+                <div class="player-stat">Status</div>
+            </div>
+            {% for player in player_stats %}
+            <div class="player-row">
+                <div class="player-name">{{ player.player_name }}</div>
+                <div class="player-stat {% if player.won > 0 %}positive{% endif %}">&pound;{{ "%.2f"|format(player.won) }}</div>
+                <div class="player-stat">
+                    {% if player.bet_balance > 0 %}
+                    <span class="badge badge-budget">&pound;{{ "%.0f"|format(player.bet_balance) }}</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </div>
+                <div class="player-stat">
+                    {% if player.owes > 0 %}
+                    <span class="badge badge-owes">-&pound;{{ "%.0f"|format(player.owes) }}</span>
+                    {% else %}
+                    <span style="color: var(--success-color);">&#10003;</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="footer">
+        Expected contribution: &pound;{{ "%.0f"|format(expected_per_player) }} ({{ weeks_elapsed }} weeks &times; &pound;5)
+    </div>
+
+    <script>
+        const playerStats = {{ player_stats | tojson }};
+
+        // Sort by winnings for chart
+        const sortedByWinnings = [...playerStats].sort((a, b) => b.won - a.won);
+
+        // Handle duplicate first names by adding last initial
+        function getDisplayName(player, allPlayers) {
+            const firstName = player.player_name.split(' ')[0];
+            const duplicates = allPlayers.filter(p => p.player_name.split(' ')[0] === firstName);
+            if (duplicates.length > 1) {
+                const nameParts = player.player_name.split(' ');
+                const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0] + '.' : '';
+                return firstName + ' ' + lastInitial;
+            }
+            return firstName;
+        }
+
+        const ctx = document.getElementById('winningsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedByWinnings.map(p => getDisplayName(p, sortedByWinnings)),
+                datasets: [{
+                    data: sortedByWinnings.map(p => parseFloat(p.won)),
+                    backgroundColor: sortedByWinnings.map((p, i) => {
+                        const hue = 142; // Green
+                        const saturation = 70;
+                        const lightness = 45 - (i * 2);
+                        return `hsl(${hue}, ${saturation}%, ${Math.max(lightness, 25)}%)`;
+                    }),
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: {
+                            color: '#888',
+                            font: { size: 9 },
+                            callback: v => '£' + v
+                        }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#ccc',
+                            font: { size: 9 }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

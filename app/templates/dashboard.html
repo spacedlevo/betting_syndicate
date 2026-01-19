@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Betting Syndicate{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+{% if not season %}
+<div class="alert alert-warning">
+    No active season found. <a href="/seasons/new">Create a season</a> to get started.
+</div>
+{% else %}
+
+{% if is_frozen %}
+<div class="alert alert-danger" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+    <span style="font-size: 1.5rem;">&#10052;</span>
+    <div>
+        <strong>Season Frozen</strong><br>
+        <span style="font-size: 0.9rem;">{{ season.name }} ended on {{ season.end_date.strftime('%d/%m/%Y') }}. No new bets or contributions allowed.</span>
+    </div>
+    <a href="/seasons" class="btn btn-sm btn-outline" style="margin-left: auto;">Manage Seasons</a>
+</div>
+{% endif %}
+
+<!-- Main Summary Section -->
+<div class="summary-section">
+    <div class="summary-grid">
+        <div>
+            <div class="stats-label">Bank Balance</div>
+            <div class="stats-value">&pound;{{ "%.2f"|format(bank_balance) }}</div>
+        </div>
+        <div>
+            <div class="stats-label">Paid In</div>
+            <div class="stats-value">&pound;{{ "%.2f"|format(total_contributions) }}</div>
+        </div>
+        <div>
+            <div class="stats-label">Bets Placed</div>
+            <div class="stats-value">&pound;{{ "%.2f"|format(total_bets_placed) }}</div>
+        </div>
+        <div>
+            <div class="stats-label">Winnings</div>
+            <div class="stats-value">&pound;{{ "%.2f"|format(total_winnings) }}</div>
+        </div>
+        <div>
+            <div class="stats-label">Profit/Loss</div>
+            <div class="stats-value {% if profit_loss >= 0 %}positive{% else %}negative{% endif %}">
+                &pound;{{ "%.2f"|format(profit_loss) }}
+            </div>
+        </div>
+        <div>
+            <div class="stats-label">Percentage</div>
+            <div class="stats-value {% if profit_percentage >= 0 %}positive{% else %}negative{% endif %}">
+                {{ "%.2f"|format(profit_percentage) }}%
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="dashboard-grid">
+    <div class="stats-box highlight">
+        <div class="stats-label">Whose Go This Week</div>
+        {% if assigned_players %}
+        <div class="assigned-players">
+            {% for player in assigned_players %}
+            <span class="player-badge" style="background: #dcfce7; color: #166534;">{{ player }}</span>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="stats-value" style="font-size: 1rem; color: var(--text-muted);">Not assigned</div>
+        {% endif %}
+    </div>
+
+    <div class="stats-box">
+        <div class="stats-label">Pay in Per Player</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(expected_per_player) }}</div>
+    </div>
+
+    <div class="stats-box">
+        <div class="stats-label">Share Per Player</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(share_per_player) }}</div>
+    </div>
+
+    <!-- <div class="stats-box">
+        <div class="stats-label">Bet Amount Per Person</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(bet_amount_per_person) }}</div>
+    </div> -->
+</div>
+
+<div class="two-col">
+    <!-- Player Performance Table -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Player Performance</span>
+            <a href="/players" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th class="text-right">Balance</th>
+                        <th class="text-right">Bets</th>
+                        <th class="text-right">Bet Bal</th>
+                        <th class="text-right">Won</th>
+                        <th class="text-right">P/L</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in player_stats %}
+                    <tr class="{% if stat.profit_loss < 0 %}row-negative{% elif stat.bet_balance > 0 %}row-warning{% endif %}">
+                        <td>{{ stat.player_name }}</td>
+                        <td class="text-right money">&pound;{{ "%.2f"|format(stat.balance) }}</td>
+                        <td class="text-right money">&pound;{{ "%.2f"|format(stat.bets_placed) }}</td>
+                        <td class="text-right money {% if stat.bet_balance > 0 %}negative{% endif %}">
+                            {% if stat.bet_balance > 0 %}&pound;{{ "%.2f"|format(stat.bet_balance) }}{% else %}-{% endif %}
+                        </td>
+                        <td class="text-right money">&pound;{{ "%.2f"|format(stat.won) }}</td>
+                        <td class="text-right money {% if stat.profit_loss >= 0 %}positive{% else %}negative{% endif %}">
+                            &pound;{{ "%.2f"|format(stat.profit_loss) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Bets -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Recent Bets</span>
+            <a href="/bets" class="btn btn-outline btn-sm">View All</a>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Player</th>
+                        <th class="text-right">Stake</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bet in recent_bets %}
+                    <tr>
+                        <td>{{ bet.bet_date.strftime('%d/%m') }}</td>
+                        <td>{{ bet.placed_by_player.name }}</td>
+                        <td class="text-right money">&pound;{{ "%.2f"|format(bet.stake) }}</td>
+                        <td>
+                            <span class="badge badge-{{ bet.status }}">{{ bet.status }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not recent_bets %}
+                    <tr>
+                        <td colspan="4" class="text-center" style="color: var(--text-muted);">No bets yet</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Winnings Bar Chart -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Betting Syndicate Winners</span>
+    </div>
+    <div style="height: 350px; padding: 1rem;">
+        <canvas id="winningsChart"></canvas>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Quick Actions</span>
+    </div>
+    <div class="quick-actions">
+        {% if is_frozen %}
+        <span class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;">Add Weekly Contributions</span>
+        <span class="btn btn-secondary" style="opacity: 0.5; cursor: not-allowed;">Place New Bet</span>
+        {% else %}
+        <a href="/ledger/contribute" class="btn btn-primary">Add Weekly Contributions</a>
+        <a href="/bets/new" class="btn btn-secondary">Place New Bet</a>
+        {% endif %}
+        <a href="/bets?status=pending" class="btn btn-outline">Update Pending Bets</a>
+        <a href="/ledger/payout" class="btn btn-outline">Record Payout</a>
+        <a href="/summary" class="btn btn-outline" target="_blank">WhatsApp Summary</a>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const ctx = document.getElementById('winningsChart').getContext('2d');
+
+    // Player data from backend
+    const playerNames = [{% for stat in player_stats %}'{{ stat.player_name }}'{% if not loop.last %}, {% endif %}{% endfor %}];
+    const playerWinnings = [{% for stat in player_stats %}{{ stat.won }}{% if not loop.last %}, {% endif %}{% endfor %}];
+    const playerBetsPlaced = [{% for stat in player_stats %}{{ stat.bets_placed }}{% if not loop.last %}, {% endif %}{% endfor %}];
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: playerNames,
+            datasets: [
+                {
+                    label: 'Won',
+                    data: playerWinnings,
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Bets Placed',
+                    data: playerBetsPlaced,
+                    type: 'line',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0,
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': £' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '£' + value;
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

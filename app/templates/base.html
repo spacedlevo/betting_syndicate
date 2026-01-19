@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Betting Syndicate{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <a href="/">Betting Syndicate</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" class="{% if request.url.path == '/' %}active{% endif %}">Dashboard</a></li>
+            <li><a href="/players" class="{% if '/players' in request.url.path %}active{% endif %}">Players</a></li>
+            <li><a href="/bets" class="{% if '/bets' in request.url.path %}active{% endif %}">Bets</a></li>
+            <li><a href="/ledger" class="{% if '/ledger' in request.url.path %}active{% endif %}">Ledger</a></li>
+            <li><a href="/seasons" class="{% if '/seasons' in request.url.path %}active{% endif %}">Seasons</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="/ledger/contribute" class="btn btn-primary btn-sm">Add Contribution</a>
+            <a href="/bets/new" class="btn btn-secondary btn-sm">Place Bet</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="main-footer">
+        <p>Betting Syndicate Manager v1.0</p>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

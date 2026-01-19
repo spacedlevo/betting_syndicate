@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Update Bet Result - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Update Bet Result</h1>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <!-- Bet Details -->
+    <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+        <p><strong>Placed by:</strong> {{ bet.placed_by_player.name }}</p>
+        <p><strong>Date:</strong> {{ bet.bet_date.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Stake:</strong> &pound;{{ "%.2f"|format(bet.stake) }}</p>
+        <p><strong>Odds:</strong> {{ bet.odds or 'Not specified' }}</p>
+        <p><strong>Description:</strong> {{ bet.description }}</p>
+    </div>
+
+    <form method="post" action="/bets/{{ bet.id }}/result">
+        <div class="form-group">
+            <label for="status">Result</label>
+            <select id="status" name="status" required onchange="toggleWinnings()">
+                <option value="">Select result...</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+                <option value="void">Void</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="winnings-group" style="display: none;">
+            <label for="winnings">Total Winnings (&pound;) - Include stake</label>
+            <input type="number" id="winnings" name="winnings" step="0.01" min="0.01" placeholder="e.g., 60.00 (stake + profit)">
+            <small style="color: var(--text-muted);">Enter the total return including the original stake</small>
+        </div>
+
+        <div class="form-group">
+            <label for="result_date">Result Date</label>
+            <input type="date" id="result_date" name="result_date" required>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Update Result</button>
+            <a href="/bets" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Set default date to today
+    document.getElementById('result_date').valueAsDate = new Date();
+
+    function toggleWinnings() {
+        const status = document.getElementById('status').value;
+        const winningsGroup = document.getElementById('winnings-group');
+        const winningsInput = document.getElementById('winnings');
+
+        if (status === 'won') {
+            winningsGroup.style.display = 'block';
+            winningsInput.required = true;
+        } else {
+            winningsGroup.style.display = 'none';
+            winningsInput.required = false;
+            winningsInput.value = '';
+        }
+    }
+</script>
+{% endblock %}

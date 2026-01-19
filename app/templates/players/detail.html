@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ player.name }} - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ player.name }}</h1>
+    <a href="/players" class="btn btn-outline">Back to Players</a>
+</div>
+
+<!-- Player Stats -->
+<div class="dashboard-grid">
+    <div class="stats-box">
+        <div class="stats-label">Total Contributions</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(stats.balance) }}</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-label">Bets Placed</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(stats.bets_placed) }}</div>
+    </div>
+    <div class="stats-box {% if stats.bet_balance > 0 %}warning{% endif %}">
+        <div class="stats-label">Pending Bets</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(stats.bet_balance) }}</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-label">Total Winnings</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(stats.won) }}</div>
+    </div>
+    <div class="stats-box {% if stats.profit_loss >= 0 %}success{% else %}highlight{% endif %}">
+        <div class="stats-label">Profit/Loss</div>
+        <div class="stats-value {% if stats.profit_loss >= 0 %}positive{% else %}negative{% endif %}">
+            &pound;{{ "%.2f"|format(stats.profit_loss) }}
+        </div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-label">Payout if Cashing Out</div>
+        <div class="stats-value">&pound;{{ "%.2f"|format(stats.payout_amount) }}</div>
+    </div>
+</div>
+
+<!-- Transaction History -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Transaction History</span>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in ledger_entries %}
+                <tr>
+                    <td>{{ entry.entry_date.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <span class="badge badge-{% if entry.entry_type == 'contribution' %}won{% elif entry.entry_type == 'bet_placed' %}pending{% elif entry.entry_type == 'winnings_share' %}won{% elif entry.entry_type == 'payout' %}lost{% else %}void{% endif %}">
+                            {{ entry.entry_type.replace('_', ' ').title() }}
+                        </span>
+                    </td>
+                    <td>{{ entry.description or '-' }}</td>
+                    <td class="text-right money {% if entry.amount >= 0 %}positive{% else %}negative{% endif %}">
+                        &pound;{{ "%.2f"|format(entry.amount) }}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not ledger_entries %}
+                <tr>
+                    <td colspan="4" class="text-center" style="color: var(--text-muted);">No transactions yet</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

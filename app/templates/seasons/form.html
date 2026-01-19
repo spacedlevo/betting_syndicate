@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}New Season - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Create New Season</h1>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <div class="alert alert-info">
+        Creating a new season will automatically set it as the active season.
+    </div>
+
+    <form method="post" action="/seasons">
+        <div class="form-group">
+            <label for="name">Season Name</label>
+            <input type="text" id="name" name="name" required placeholder="e.g., 2025-2026">
+        </div>
+
+        <div class="form-group">
+            <label for="start_date">Start Date</label>
+            <input type="date" id="start_date" name="start_date" required>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Create Season</button>
+            <a href="/seasons" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

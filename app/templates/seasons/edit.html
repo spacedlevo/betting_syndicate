@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Season - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Season</h1>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <div class="card-header">
+        <span class="card-title">{{ season.name }}</span>
+        {% if is_frozen %}
+        <span class="badge badge-void">Frozen</span>
+        {% endif %}
+    </div>
+
+    <form method="post" action="/seasons/{{ season.id }}/edit" style="padding: 1.5rem;">
+        <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" value="{{ season.start_date }}" disabled style="background: var(--card-bg); color: var(--text-muted);">
+            <small style="color: var(--text-muted);">Start date cannot be changed</small>
+        </div>
+
+        <div class="form-group">
+            <label for="end_date">End Date</label>
+            <input type="date" id="end_date" name="end_date" value="{{ season.end_date if season.end_date else '' }}">
+            <small style="color: var(--text-muted);">
+                Set an end date to freeze the season. Once the end date passes, no new bets or contributions can be added.
+            </small>
+        </div>
+
+        {% if is_frozen %}
+        <div class="alert alert-warning" style="margin-bottom: 1rem;">
+            This season is currently <strong>frozen</strong>. The end date ({{ season.end_date.strftime('%d/%m/%Y') }}) has passed.
+            To unfreeze, remove or extend the end date.
+        </div>
+        {% elif season.end_date %}
+        <div class="alert alert-info" style="margin-bottom: 1rem;">
+            This season will freeze on <strong>{{ season.end_date.strftime('%d/%m/%Y') }}</strong>.
+            After this date, no new activity will be allowed.
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/seasons" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

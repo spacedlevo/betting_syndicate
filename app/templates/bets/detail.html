@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Bet Details - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Bet Details</h1>
+    <a href="/bets" class="btn btn-outline">Back to Bets</a>
+</div>
+
+<div class="card" style="max-width: 700px;">
+    <div class="stats-box" style="margin-bottom: 1rem;">
+        <span class="badge badge-{{ bet.status }}" style="font-size: 1rem;">{{ bet.status.upper() }}</span>
+    </div>
+
+    <table style="width: 100%;">
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Placed By</td>
+            <td style="padding: 0.5rem 0;">{{ bet.placed_by_player.name }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Bet Date</td>
+            <td style="padding: 0.5rem 0;">{{ bet.bet_date.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Stake</td>
+            <td style="padding: 0.5rem 0;">&pound;{{ "%.2f"|format(bet.stake) }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Odds</td>
+            <td style="padding: 0.5rem 0;">{{ bet.odds or 'Not specified' }}</td>
+        </tr>
+        {% if bet.odds and bet.status == 'pending' %}
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Potential Return</td>
+            <td style="padding: 0.5rem 0; color: var(--success-color); font-weight: 500;" id="potential-return">Calculating...</td>
+        </tr>
+        {% endif %}
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Description</td>
+            <td style="padding: 0.5rem 0;">{{ bet.description }}</td>
+        </tr>
+        {% if bet.result_date %}
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Result Date</td>
+            <td style="padding: 0.5rem 0;">{{ bet.result_date.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% endif %}
+        {% if bet.winnings %}
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Winnings</td>
+            <td style="padding: 0.5rem 0; color: var(--success-color); font-weight: 600;">&pound;{{ "%.2f"|format(bet.winnings) }}</td>
+        </tr>
+        {% endif %}
+        {% if bet.notes %}
+        <tr>
+            <td style="padding: 0.5rem 0; color: var(--text-muted);">Notes</td>
+            <td style="padding: 0.5rem 0;">{{ bet.notes }}</td>
+        </tr>
+        {% endif %}
+    </table>
+</div>
+
+<!-- Screenshot Section -->
+<div class="card" style="max-width: 700px; margin-top: 1rem;">
+    <div class="card-header">
+        <span class="card-title">Bet Screenshot</span>
+    </div>
+    <div style="padding: 1rem;">
+        {% if bet.screenshot %}
+        <div style="margin-bottom: 1rem;">
+            <a href="/uploads/screenshots/{{ bet.screenshot }}" target="_blank">
+                <img src="/uploads/screenshots/{{ bet.screenshot }}"
+                     alt="Bet screenshot"
+                     style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 1px solid var(--border-color);">
+            </a>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">No screenshot uploaded</p>
+        {% endif %}
+
+        <form method="post" action="/bets/{{ bet.id }}/screenshot" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="file" name="screenshot" accept="image/*" required style="flex: 1;">
+            <button type="submit" class="btn btn-outline btn-sm">
+                {% if bet.screenshot %}Replace{% else %}Upload{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+
+{% if ledger_entries %}
+<div class="card" style="max-width: 700px; margin-top: 1rem;">
+    <div class="card-header">
+        <span class="card-title">Related Ledger Entries</span>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Player</th>
+                    <th>Type</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in ledger_entries %}
+                <tr>
+                    <td>{{ entry.entry_date.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ entry.player.name }}</td>
+                    <td>{{ entry.entry_type.replace('_', ' ').title() }}</td>
+                    <td class="text-right money {% if entry.amount >= 0 %}positive{% else %}negative{% endif %}">
+                        &pound;{{ "%.2f"|format(entry.amount) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if bet.odds and bet.status == 'pending' %}
+<script>
+    function parseOdds(oddsStr) {
+        if (!oddsStr) return null;
+
+        const odds = oddsStr.trim().toLowerCase();
+
+        // Handle "evens" or "even"
+        if (odds === 'evens' || odds === 'even') {
+            return 2.0;
+        }
+
+        // Handle fractional odds (e.g., "5/1", "11/4")
+        if (odds.includes('/')) {
+            const parts = odds.split('/');
+            if (parts.length === 2) {
+                const numerator = parseFloat(parts[0]);
+                const denominator = parseFloat(parts[1]);
+                if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+                    return (numerator / denominator) + 1;
+                }
+            }
+            return null;
+        }
+
+        // Handle decimal odds (e.g., "2.5", "1.5")
+        const decimalOdds = parseFloat(odds);
+        if (!isNaN(decimalOdds) && decimalOdds > 0) {
+            return decimalOdds;
+        }
+
+        return null;
+    }
+
+    const stake = {{ bet.stake }};
+    const oddsStr = "{{ bet.odds }}";
+    const decimalOdds = parseOdds(oddsStr);
+    const potentialReturnEl = document.getElementById('potential-return');
+
+    if (decimalOdds !== null && potentialReturnEl) {
+        const potentialReturn = stake * decimalOdds;
+        potentialReturnEl.textContent = '£' + potentialReturn.toFixed(2) + ' (profit: £' + (potentialReturn - stake).toFixed(2) + ')';
+    } else if (potentialReturnEl) {
+        potentialReturnEl.textContent = 'Unable to calculate';
+    }
+</script>
+{% endif %}
+{% endblock %}

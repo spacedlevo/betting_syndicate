@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Place New Bet - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Place New Bet</h1>
+</div>
+
+{% if not season %}
+<div class="alert alert-warning">
+    No active season. Please <a href="/seasons/new">create a season</a> first.
+</div>
+{% elif not players %}
+<div class="alert alert-warning">
+    No active players in this season. Please <a href="/players">add players</a> first.
+</div>
+{% else %}
+<div class="card" style="max-width: 600px;">
+    <form method="post" action="/bets" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="placed_by_player_id">Placed By</label>
+            <select id="placed_by_player_id" name="placed_by_player_id" required>
+                <option value="">Select player...</option>
+                {% for player in players %}
+                <option value="{{ player.id }}">{{ player.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="stake">Stake (&pound;)</label>
+            <input type="number" id="stake" name="stake" step="0.01" min="0.01" required placeholder="10.00">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" required rows="3" placeholder="e.g., Man Utd to win vs Liverpool"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="odds">Odds (optional)</label>
+            <input type="text" id="odds" name="odds" placeholder="e.g., 5/1, 2.5, evens">
+        </div>
+
+        <div id="potential-winnings" class="stats-box" style="display: none; margin-bottom: 1rem; padding: 1rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--text-muted);">Potential Return:</span>
+                <span id="potential-return" style="font-size: 1.25rem; font-weight: 600; color: var(--success-color);">&pound;0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <span style="color: var(--text-muted);">Potential Profit:</span>
+                <span id="potential-profit" style="font-weight: 500; color: var(--success-color);">&pound;0.00</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="bet_date">Date</label>
+            <input type="date" id="bet_date" name="bet_date" required value="{{ today }}">
+        </div>
+
+        <div class="form-group">
+            <label for="screenshot">Screenshot (optional)</label>
+            <input type="file" id="screenshot" name="screenshot" accept="image/*">
+            <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                Upload a screenshot of the bet slip (JPG, PNG, GIF, WebP)
+            </small>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Place Bet</button>
+            <a href="/bets" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Set default date to today
+    document.getElementById('bet_date').valueAsDate = new Date();
+
+    // Potential winnings calculation
+    const stakeInput = document.getElementById('stake');
+    const oddsInput = document.getElementById('odds');
+    const potentialWinningsDiv = document.getElementById('potential-winnings');
+    const potentialReturnSpan = document.getElementById('potential-return');
+    const potentialProfitSpan = document.getElementById('potential-profit');
+
+    function parseOdds(oddsStr) {
+        if (!oddsStr) return null;
+
+        const odds = oddsStr.trim().toLowerCase();
+
+        // Handle "evens" or "even"
+        if (odds === 'evens' || odds === 'even') {
+            return 2.0;  // Decimal odds for evens
+        }
+
+        // Handle fractional odds (e.g., "5/1", "11/4")
+        if (odds.includes('/')) {
+            const parts = odds.split('/');
+            if (parts.length === 2) {
+                const numerator = parseFloat(parts[0]);
+                const denominator = parseFloat(parts[1]);
+                if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+                    // Convert fractional to decimal: (num/denom) + 1
+                    return (numerator / denominator) + 1;
+                }
+            }
+            return null;
+        }
+
+        // Handle decimal odds (e.g., "2.5", "1.5")
+        const decimalOdds = parseFloat(odds);
+        if (!isNaN(decimalOdds) && decimalOdds > 0) {
+            return decimalOdds;
+        }
+
+        return null;
+    }
+
+    function calculatePotentialWinnings() {
+        const stake = parseFloat(stakeInput.value);
+        const decimalOdds = parseOdds(oddsInput.value);
+
+        if (stake > 0 && decimalOdds !== null) {
+            const potentialReturn = stake * decimalOdds;
+            const potentialProfit = potentialReturn - stake;
+
+            potentialReturnSpan.textContent = '£' + potentialReturn.toFixed(2);
+            potentialProfitSpan.textContent = '£' + potentialProfit.toFixed(2);
+            potentialWinningsDiv.style.display = 'block';
+        } else {
+            potentialWinningsDiv.style.display = 'none';
+        }
+    }
+
+    stakeInput.addEventListener('input', calculatePotentialWinnings);
+    oddsInput.addEventListener('input', calculatePotentialWinnings);
+</script>
+{% endblock %}

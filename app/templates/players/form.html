@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{% if player %}Edit Player{% else %}New Player{% endif %} - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% if player %}Edit Player{% else %}Add New Player{% endif %}</h1>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <form method="post" action="/players">
+        <div class="form-group">
+            <label for="name">Player Name</label>
+            <input type="text" id="name" name="name" required value="{{ player.name if player else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email (optional)</label>
+            <input type="email" id="email" name="email" value="{{ player.email if player and player.email else '' }}">
+        </div>
+
+        {% if season %}
+        <div class="form-group">
+            <label class="checkbox-item">
+                <input type="checkbox" name="add_to_season" value="true" checked>
+                Add to current season ({{ season.name }})
+            </label>
+        </div>
+        {% endif %}
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Save Player</button>
+            <a href="/players" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

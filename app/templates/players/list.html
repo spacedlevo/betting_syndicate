@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Players - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Players</h1>
+    <a href="/players/new" class="btn btn-primary">Add Player</a>
+</div>
+
+{% if season %}
+<div class="alert alert-info">
+    Season: {{ season.name }} | Active players: {{ player_data|selectattr('in_season')|list|length }}
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th class="text-center">In Season</th>
+                    <th class="text-right">Balance</th>
+                    <th class="text-right">Bets Placed</th>
+                    <th class="text-right">Bet Balance</th>
+                    <th class="text-right">Won</th>
+                    <th class="text-right">Profit/Loss</th>
+                    <th class="text-right">Payout</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in player_data %}
+                <tr class="{% if data.profit_loss < 0 %}row-negative{% elif data.bet_balance > 0 %}row-warning{% endif %}">
+                    <td>
+                        <a href="/players/{{ data.player.id }}">{{ data.player.name }}</a>
+                    </td>
+                    <td class="text-center">
+                        {% if data.in_season %}
+                        <span style="color: var(--success-color);">&#10003;</span>
+                        {% else %}
+                        <span style="color: var(--text-muted);">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-right money">&pound;{{ "%.2f"|format(data.balance) }}</td>
+                    <td class="text-right money">&pound;{{ "%.2f"|format(data.bets_placed) }}</td>
+                    <td class="text-right money {% if data.bet_balance > 0 %}negative{% endif %}">
+                        {% if data.bet_balance > 0 %}&pound;{{ "%.2f"|format(data.bet_balance) }}{% else %}-{% endif %}
+                    </td>
+                    <td class="text-right money">&pound;{{ "%.2f"|format(data.won) }}</td>
+                    <td class="text-right money {% if data.profit_loss >= 0 %}positive{% else %}negative{% endif %}">
+                        &pound;{{ "%.2f"|format(data.profit_loss) }}
+                    </td>
+                    <td class="text-right money">
+                        &pound;{{ "%.2f"|format(data.payout) }}
+                    </td>
+                    <td class="text-center">
+                        <form method="post" action="/players/{{ data.player.id }}/toggle" style="display: inline;">
+                            <button type="submit" class="btn btn-sm {% if data.in_season %}btn-danger{% else %}btn-success{% endif %}">
+                                {% if data.in_season %}Remove{% else %}Add{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
