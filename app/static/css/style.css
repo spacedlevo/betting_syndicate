@@ -1,5 +1,6 @@
 /* Betting Syndicate - Simple Clean CSS */
 
+/* Light theme (default) */
 :root {
     --primary-color: #2563eb;
     --primary-dark: #1d4ed8;
@@ -12,6 +13,104 @@
     --text: #1e293b;
     --text-muted: #64748b;
     --border: #e2e8f0;
+    --badge-pending-bg: #fef3c7;
+    --badge-pending-text: #92400e;
+    --badge-won-bg: #dcfce7;
+    --badge-won-text: #166534;
+    --badge-lost-bg: #fee2e2;
+    --badge-lost-text: #991b1b;
+    --badge-void-bg: #f1f5f9;
+    --badge-void-text: #475569;
+    --alert-info-bg: #eff6ff;
+    --alert-info-text: #1e40af;
+    --alert-info-border: #bfdbfe;
+    --alert-success-bg: #f0fdf4;
+    --alert-success-text: #166534;
+    --alert-success-border: #bbf7d0;
+    --alert-warning-bg: #fffbeb;
+    --alert-warning-text: #92400e;
+    --alert-warning-border: #fde68a;
+    --alert-error-bg: #fef2f2;
+    --alert-error-text: #991b1b;
+    --alert-error-border: #fecaca;
+    --row-negative-bg: #fef2f2;
+    --row-warning-bg: #fff7ed;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --primary-color: #3b82f6;
+    --primary-dark: #2563eb;
+    --secondary-color: #94a3b8;
+    --success-color: #4ade80;
+    --danger-color: #f87171;
+    --warning-color: #fb923c;
+    --background: #0f172a;
+    --surface: #1e293b;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --badge-pending-bg: #422006;
+    --badge-pending-text: #fcd34d;
+    --badge-won-bg: #052e16;
+    --badge-won-text: #86efac;
+    --badge-lost-bg: #450a0a;
+    --badge-lost-text: #fca5a5;
+    --badge-void-bg: #334155;
+    --badge-void-text: #cbd5e1;
+    --alert-info-bg: #1e3a5f;
+    --alert-info-text: #93c5fd;
+    --alert-info-border: #1e40af;
+    --alert-success-bg: #052e16;
+    --alert-success-text: #86efac;
+    --alert-success-border: #166534;
+    --alert-warning-bg: #422006;
+    --alert-warning-text: #fcd34d;
+    --alert-warning-border: #92400e;
+    --alert-error-bg: #450a0a;
+    --alert-error-text: #fca5a5;
+    --alert-error-border: #991b1b;
+    --row-negative-bg: #2d1b1b;
+    --row-warning-bg: #2d2011;
+}
+
+/* System preference detection (when no manual preference set) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --primary-color: #3b82f6;
+        --primary-dark: #2563eb;
+        --secondary-color: #94a3b8;
+        --success-color: #4ade80;
+        --danger-color: #f87171;
+        --warning-color: #fb923c;
+        --background: #0f172a;
+        --surface: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --badge-pending-bg: #422006;
+        --badge-pending-text: #fcd34d;
+        --badge-won-bg: #052e16;
+        --badge-won-text: #86efac;
+        --badge-lost-bg: #450a0a;
+        --badge-lost-text: #fca5a5;
+        --badge-void-bg: #334155;
+        --badge-void-text: #cbd5e1;
+        --alert-info-bg: #1e3a5f;
+        --alert-info-text: #93c5fd;
+        --alert-info-border: #1e40af;
+        --alert-success-bg: #052e16;
+        --alert-success-text: #86efac;
+        --alert-success-border: #166534;
+        --alert-warning-bg: #422006;
+        --alert-warning-text: #fcd34d;
+        --alert-warning-border: #92400e;
+        --alert-error-bg: #450a0a;
+        --alert-error-text: #fca5a5;
+        --alert-error-border: #991b1b;
+        --row-negative-bg: #2d1b1b;
+        --row-warning-bg: #2d2011;
+    }
 }
 
 * {
@@ -265,32 +364,32 @@ tr:hover {
 }
 
 .badge-pending {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--badge-pending-bg);
+    color: var(--badge-pending-text);
 }
 
 .badge-won {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--badge-won-bg);
+    color: var(--badge-won-text);
 }
 
 .badge-lost {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--badge-lost-bg);
+    color: var(--badge-lost-text);
 }
 
 .badge-void {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--badge-void-bg);
+    color: var(--badge-void-text);
 }
 
 /* Highlight Rows */
 .row-negative {
-    background: #fef2f2 !important;
+    background: var(--row-negative-bg) !important;
 }
 
 .row-warning {
-    background: #fff7ed !important;
+    background: var(--row-warning-bg) !important;
 }
 
 /* Forms */
@@ -413,27 +512,27 @@ textarea:focus {
 }
 
 .alert-info {
-    background: #eff6ff;
-    color: #1e40af;
-    border: 1px solid #bfdbfe;
+    background: var(--alert-info-bg);
+    color: var(--alert-info-text);
+    border: 1px solid var(--alert-info-border);
 }
 
 .alert-success {
-    background: #f0fdf4;
-    color: #166534;
-    border: 1px solid #bbf7d0;
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+    border: 1px solid var(--alert-success-border);
 }
 
 .alert-warning {
-    background: #fffbeb;
-    color: #92400e;
-    border: 1px solid #fde68a;
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+    border: 1px solid var(--alert-warning-border);
 }
 
 .alert-error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: var(--alert-error-bg);
+    color: var(--alert-error-text);
+    border: 1px solid var(--alert-error-border);
 }
 
 /* Pagination */
@@ -485,4 +584,52 @@ textarea:focus {
 
 .money.negative {
     color: var(--danger-color);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+    background: var(--background);
+    color: var(--text);
+}
+
+.theme-toggle svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon,
+.theme-toggle .icon-system {
+    display: none;
+}
+
+/* Show appropriate icon based on theme state */
+[data-theme="light"] .theme-toggle .icon-sun {
+    display: block;
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+    display: block;
+}
+
+.theme-toggle .icon-system {
+    display: block;
+}
+
+[data-theme="light"] .theme-toggle .icon-system,
+[data-theme="dark"] .theme-toggle .icon-system {
+    display: none;
 }
