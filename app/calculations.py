@@ -102,9 +102,10 @@ def get_player_total_bets(
     season_id: Optional[int] = None
 ) -> Decimal:
     """
-    Calculate total amount bet by a player.
+    Calculate total amount bet by a player, excluding voided bets.
 
-    This is the absolute value of all bet_placed entries.
+    This is the absolute value of all bet_placed entries minus any
+    bet_void entries (voided stakes are returned and can be reused).
 
     Args:
         db: Database session
@@ -112,20 +113,35 @@ def get_player_total_bets(
         season_id: Optional season filter
 
     Returns:
-        Total bets placed as Decimal
+        Total bets placed as Decimal (excluding voided bets)
     """
-    query = db.query(func.sum(func.abs(LedgerEntry.amount))).filter(
+    # Sum of bet_placed entries (stored as negative, so use abs)
+    placed_query = db.query(func.sum(func.abs(LedgerEntry.amount))).filter(
         and_(
             LedgerEntry.player_id == player_id,
             LedgerEntry.entry_type == 'bet_placed'
         )
     )
 
-    if season_id is not None:
-        query = query.filter(LedgerEntry.season_id == season_id)
+    # Sum of bet_void entries (stored as positive)
+    void_query = db.query(func.sum(LedgerEntry.amount)).filter(
+        and_(
+            LedgerEntry.player_id == player_id,
+            LedgerEntry.entry_type == 'bet_void'
+        )
+    )
 
-    result = query.scalar()
-    return Decimal(result) if result else Decimal('0.00')
+    if season_id is not None:
+        placed_query = placed_query.filter(LedgerEntry.season_id == season_id)
+        void_query = void_query.filter(LedgerEntry.season_id == season_id)
+
+    placed = placed_query.scalar()
+    voided = void_query.scalar()
+
+    total_placed = Decimal(placed) if placed else Decimal('0.00')
+    total_voided = Decimal(voided) if voided else Decimal('0.00')
+
+    return total_placed - total_voided
 
 
 def get_player_total_winnings(
@@ -238,25 +254,38 @@ def get_season_total_contributions(db: Session, season_id: int) -> Decimal:
 
 def get_season_total_bets_placed(db: Session, season_id: int) -> Decimal:
     """
-    Calculate total amount bet for a season.
+    Calculate total amount bet for a season, excluding voided bets.
 
-    This is the absolute value of all bet_placed entries.
+    This is the absolute value of all bet_placed entries minus any
+    bet_void entries (voided stakes are returned and can be reused).
 
     Args:
         db: Database session
         season_id: Season ID
 
     Returns:
-        Total bets placed as Decimal
+        Total bets placed as Decimal (excluding voided bets)
     """
-    result = db.query(func.sum(func.abs(LedgerEntry.amount))).filter(
+    # Sum of bet_placed entries (stored as negative, so use abs)
+    placed = db.query(func.sum(func.abs(LedgerEntry.amount))).filter(
         and_(
             LedgerEntry.season_id == season_id,
             LedgerEntry.entry_type == 'bet_placed'
         )
     ).scalar()
 
-    return Decimal(result) if result else Decimal('0.00')
+    # Sum of bet_void entries (stored as positive)
+    voided = db.query(func.sum(LedgerEntry.amount)).filter(
+        and_(
+            LedgerEntry.season_id == season_id,
+            LedgerEntry.entry_type == 'bet_void'
+        )
+    ).scalar()
+
+    total_placed = Decimal(placed) if placed else Decimal('0.00')
+    total_voided = Decimal(voided) if voided else Decimal('0.00')
+
+    return total_placed - total_voided
 
 
 def get_season_total_winnings(db: Session, season_id: int) -> Decimal:

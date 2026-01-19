@@ -483,10 +483,3 @@ chmod -R 755 /opt/betting-syndicate/uploads
 | Service Name | `betting-syndicate` |
 | Logs | `sudo journalctl -u betting-syndicate -f` |
 | Restart | `sudo systemctl restart betting-syndicate` |
-
----
-
-## Related Documentation
-
-- [DATABASE.md](DATABASE.md) - Database schema and ledger system
-- [SEASONS.md](SEASONS.md) - Season management guide

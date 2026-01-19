@@ -533,3 +533,77 @@ class TestPlayerPerformanceStats:
         assert player1_stats['bets_placed'] == Decimal('10.00')
         assert player1_stats['won'] == Decimal('20.00')  # Share of £60
         assert player1_stats['profit_loss'] == Decimal('15.00')  # £20 - £5
+
+
+class TestVoidedBetsExcludedFromTotals:
+    """Tests for verifying voided bets don't count against betting budget."""
+
+    def test_player_total_bets_excludes_voided(
+        self, db_session, sample_season, sample_week, sample_players, sample_bet
+    ):
+        """Test that voided bets are excluded from player's total bets."""
+        player = sample_players[0]
+
+        # Place a bet
+        ledger.record_bet_placed(
+            db_session,
+            bet_id=sample_bet.id,
+            player_id=player.id,
+            season_id=sample_season.id,
+            week_id=sample_week.id,
+            stake=Decimal('10.00'),
+            entry_date=date(2025, 8, 12)
+        )
+
+        # Initially should count as £10 bet
+        total = calculations.get_player_total_bets(db_session, player.id, sample_season.id)
+        assert total == Decimal('10.00')
+
+        # Void the bet
+        ledger.record_bet_void(
+            db_session,
+            bet_id=sample_bet.id,
+            player_id=player.id,
+            season_id=sample_season.id,
+            week_id=sample_week.id,
+            stake=Decimal('10.00'),
+            entry_date=date(2025, 8, 13)
+        )
+
+        # After void, should be £0 (stake is freed up)
+        total_after_void = calculations.get_player_total_bets(db_session, player.id, sample_season.id)
+        assert total_after_void == Decimal('0.00')
+
+    def test_season_total_bets_excludes_voided(
+        self, db_session, sample_season, sample_week, sample_players, sample_bet
+    ):
+        """Test that voided bets are excluded from season total bets."""
+        # Place a bet
+        ledger.record_bet_placed(
+            db_session,
+            bet_id=sample_bet.id,
+            player_id=sample_players[0].id,
+            season_id=sample_season.id,
+            week_id=sample_week.id,
+            stake=Decimal('10.00'),
+            entry_date=date(2025, 8, 12)
+        )
+
+        # Initially should count as £10
+        total = calculations.get_season_total_bets_placed(db_session, sample_season.id)
+        assert total == Decimal('10.00')
+
+        # Void the bet
+        ledger.record_bet_void(
+            db_session,
+            bet_id=sample_bet.id,
+            player_id=sample_players[0].id,
+            season_id=sample_season.id,
+            week_id=sample_week.id,
+            stake=Decimal('10.00'),
+            entry_date=date(2025, 8, 13)
+        )
+
+        # After void, should be £0
+        total_after_void = calculations.get_season_total_bets_placed(db_session, sample_season.id)
+        assert total_after_void == Decimal('0.00')
