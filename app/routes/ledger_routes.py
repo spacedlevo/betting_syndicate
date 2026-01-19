@@ -64,7 +64,7 @@ async def list_ledger(
     players = db.query(Player).filter(Player.is_active == True).order_by(Player.name).all()
 
     # Entry types for filter
-    entry_types = ['contribution', 'bet_placed', 'winnings_share', 'bet_void', 'payout']
+    entry_types = ['contribution', 'bet_placed', 'winnings', 'bet_void', 'payout']
 
     # Convert player_id to int for template comparison, or None if empty
     current_player_id = int(player_id) if player_id and player_id.strip() else None
