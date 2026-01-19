@@ -61,10 +61,30 @@
         applyTheme(theme);
         updateToggleTitle(theme);
 
-        // Attach click handler
+        // Attach theme toggle click handler
         const btn = document.getElementById('theme-toggle');
         if (btn) {
             btn.addEventListener('click', cycleTheme);
+        }
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+        const navActions = document.getElementById('nav-actions');
+
+        if (mobileMenuToggle && navLinks && navActions) {
+            mobileMenuToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+                navActions.classList.toggle('active');
+            });
+
+            // Close menu when clicking a link
+            navLinks.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('active');
+                    navActions.classList.remove('active');
+                });
+            });
         }
     }
 
