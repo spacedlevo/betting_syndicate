@@ -735,11 +735,18 @@ textarea:focus {
         display: flex !important;
     }
 
+    .nav-links li {
+        margin: 0;
+        width: 100%;
+    }
+
     .nav-links a {
-        padding: 1rem 0.75rem;
-        border-radius: 0;
+        display: block !important;
+        padding: 1.125rem 1rem !important;
+        border-radius: 0 !important;
         border-bottom: 1px solid var(--border);
         font-size: 1rem;
+        line-height: 1.4;
     }
 
     .nav-links li:last-child a {
