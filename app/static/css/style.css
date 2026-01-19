@@ -35,6 +35,8 @@
     --alert-error-border: #fecaca;
     --row-negative-bg: #fef2f2;
     --row-warning-bg: #fff7ed;
+    --row-active-bg: #f0fdf4;
+    --row-frozen-bg: rgba(248, 113, 113, 0.1);
 }
 
 /* Dark theme */
@@ -72,6 +74,8 @@
     --alert-error-border: #991b1b;
     --row-negative-bg: #2d1b1b;
     --row-warning-bg: #2d2011;
+    --row-active-bg: #052e16;
+    --row-frozen-bg: rgba(248, 113, 113, 0.15);
 }
 
 /* System preference detection (when no manual preference set) */
@@ -110,6 +114,8 @@
         --alert-error-border: #991b1b;
         --row-negative-bg: #2d1b1b;
         --row-warning-bg: #2d2011;
+        --row-active-bg: #052e16;
+        --row-frozen-bg: rgba(248, 113, 113, 0.15);
     }
 }
 
@@ -124,6 +130,14 @@ body {
     background-color: var(--background);
     color: var(--text);
     line-height: 1.6;
+}
+
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-dark);
 }
 
 /* Navigation */
@@ -390,6 +404,14 @@ tr:hover {
 
 .row-warning {
     background: var(--row-warning-bg) !important;
+}
+
+.row-active {
+    background: var(--row-active-bg) !important;
+}
+
+.row-frozen {
+    background: var(--row-frozen-bg) !important;
 }
 
 /* Forms */

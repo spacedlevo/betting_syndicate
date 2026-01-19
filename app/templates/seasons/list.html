@@ -22,7 +22,7 @@
             </thead>
             <tbody>
                 {% for data in season_data %}
-                <tr {% if data.season.is_active and not data.is_frozen %}style="background: #f0fdf4;"{% elif data.is_frozen %}style="background: rgba(248, 113, 113, 0.1);"{% endif %}>
+                <tr class="{% if data.season.is_active and not data.is_frozen %}row-active{% elif data.is_frozen %}row-frozen{% endif %}">
                     <td>
                         <strong>{{ data.season.name }}</strong>
                     </td>
