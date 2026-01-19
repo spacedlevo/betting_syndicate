@@ -685,9 +685,8 @@ textarea:focus {
         gap: 0.5rem;
     }
 
-    .mobile-menu-toggle {
-        display: block;
-        margin-left: auto;
+    .nav-brand {
+        order: 1;
     }
 
     .nav-links {
@@ -695,7 +694,7 @@ textarea:focus {
         width: 100%;
         flex-direction: column;
         gap: 0;
-        order: 3;
+        order: 10;
         padding-top: 0.5rem;
         border-top: 1px solid var(--border);
         margin-top: 0.5rem;
@@ -718,10 +717,11 @@ textarea:focus {
     .nav-actions {
         display: none;
         width: 100%;
-        order: 4;
+        order: 11;
         flex-direction: column;
         gap: 0.5rem;
         padding-top: 0.75rem;
+        margin-left: 0;
     }
 
     .nav-actions.active {
@@ -734,12 +734,14 @@ textarea:focus {
     }
 
     .main-nav > .theme-toggle {
-        margin-left: 0;
+        margin-left: auto;
         order: 2;
     }
 
     .mobile-menu-toggle {
+        display: block;
         order: 3;
+        margin-left: 0.5rem;
     }
 
     /* Container */
