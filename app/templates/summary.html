@@ -269,12 +269,13 @@
                     {% endif %}
                 </div>
                 <div class="player-stat">
-                    {% if player.owes < 0 %}
-                    <span class="positive">+&pound;{{ "%.0f"|format(player.owes|abs) }}</span>
-                    {% elif player.owes == 0 %}
+                    {% set contribution_balance = player.balance - expected_per_player %}
+                    {% if contribution_balance > 0 %}
+                    <span class="positive">+&pound;{{ "%.0f"|format(contribution_balance) }}</span>
+                    {% elif contribution_balance == 0 %}
                     <span class="warning">&pound;0</span>
                     {% else %}
-                    <span class="negative">-&pound;{{ "%.0f"|format(player.owes) }}</span>
+                    <span class="negative">-&pound;{{ "%.0f"|format(contribution_balance|abs) }}</span>
                     {% endif %}
                 </div>
             </div>
