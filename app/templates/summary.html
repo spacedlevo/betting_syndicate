@@ -256,6 +256,7 @@
                 <div class="player-stat">Won</div>
                 <div class="player-stat">Budget</div>
                 <div class="player-stat">Balance</div>
+                <div class="player-stat">Cred/Debt</div>
             </div>
             {% for player in player_stats %}
             <div class="player-row">
@@ -268,6 +269,7 @@
                     -
                     {% endif %}
                 </div>
+                <div class="player-stat">&pound;{{ "%.0f"|format(player.balance) }}</div>
                 <div class="player-stat">
                     {% set contribution_balance = player.balance - expected_per_player %}
                     {% if contribution_balance > 0 %}
