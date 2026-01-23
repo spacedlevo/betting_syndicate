@@ -255,7 +255,7 @@
                 <div class="player-name">Player</div>
                 <div class="player-stat">Won</div>
                 <div class="player-stat">Budget</div>
-                <div class="player-stat">Status</div>
+                <div class="player-stat">Balance</div>
             </div>
             {% for player in player_stats %}
             <div class="player-row">
@@ -269,10 +269,12 @@
                     {% endif %}
                 </div>
                 <div class="player-stat">
-                    {% if player.owes > 0 %}
-                    <span class="badge badge-owes">-&pound;{{ "%.0f"|format(player.owes) }}</span>
+                    {% if player.owes < 0 %}
+                    <span class="positive">+&pound;{{ "%.0f"|format(player.owes|abs) }}</span>
+                    {% elif player.owes == 0 %}
+                    <span class="warning">&pound;0</span>
                     {% else %}
-                    <span style="color: var(--success-color);">&#10003;</span>
+                    <span class="negative">-&pound;{{ "%.0f"|format(player.owes) }}</span>
                     {% endif %}
                 </div>
             </div>

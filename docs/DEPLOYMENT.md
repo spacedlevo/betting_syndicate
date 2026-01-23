@@ -398,7 +398,86 @@ Then access via `http://betting.local`
 
 ---
 
-## Part 9: Maintenance Commands
+## Part 9: Set Up Tailscale (Remote Access)
+
+Tailscale provides secure remote access to your server from anywhere without port forwarding or exposing your server to the internet.
+
+### 9.1 Install Tailscale
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+### 9.2 Start and Authenticate
+
+```bash
+sudo tailscale up
+```
+
+This will print a URL. Open it in your browser to authenticate with your Tailscale account (create one at https://tailscale.com if needed).
+
+### 9.3 Get Your Tailscale IP
+
+```bash
+tailscale ip -4
+```
+
+This returns your Tailscale IP (e.g., `100.x.x.x`).
+
+### 9.4 Update Nginx Configuration
+
+Add your Tailscale IP to the nginx server_name:
+
+```bash
+sudo nano /etc/nginx/sites-available/betting-syndicate
+```
+
+Update the `server_name` line:
+
+```nginx
+server_name betting-syndicate.local betting.local 192.168.1.50 100.x.x.x;
+```
+
+Replace `100.x.x.x` with your actual Tailscale IP.
+
+Then reload nginx:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### 9.5 Allow Tailscale Through Firewall
+
+```bash
+sudo ufw allow in on tailscale0
+```
+
+### 9.6 Access from Other Devices
+
+1. Install Tailscale on your phone, laptop, or other devices
+2. Sign in with the same Tailscale account
+3. Access the application at `http://100.x.x.x` (your Tailscale IP)
+
+### 9.7 Optional: Use MagicDNS
+
+If you enable MagicDNS in the Tailscale admin console (https://login.tailscale.com/admin/dns), you can access your server by its hostname:
+
+```
+http://betting-syndicate
+```
+
+### 9.8 Check Tailscale Status
+
+```bash
+tailscale status
+```
+
+This shows all connected devices on your Tailscale network.
+
+---
+
+## Part 10: Maintenance Commands
 
 ### View Application Logs
 
@@ -477,9 +556,13 @@ chmod -R 755 /opt/betting-syndicate/uploads
 | Item | Value |
 |------|-------|
 | VM IP | `192.168.1.50` (your IP) |
-| Web URL | `http://192.168.1.50` |
+| Tailscale IP | `100.x.x.x` (your Tailscale IP) |
+| Web URL (local) | `http://192.168.1.50` |
+| Web URL (remote) | `http://100.x.x.x` or `http://betting-syndicate` (MagicDNS) |
 | SSH | `ssh admin@192.168.1.50` |
+| SSH (Tailscale) | `ssh admin@100.x.x.x` |
 | App Directory | `/opt/betting-syndicate` |
 | Service Name | `betting-syndicate` |
 | Logs | `sudo journalctl -u betting-syndicate -f` |
 | Restart | `sudo systemctl restart betting-syndicate` |
+| Tailscale Status | `tailscale status` |
