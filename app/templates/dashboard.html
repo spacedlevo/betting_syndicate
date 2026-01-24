@@ -24,6 +24,25 @@
 </div>
 {% endif %}
 
+{% set players_with_negative_payout = [] %}
+{% for stat in player_stats %}
+    {% set player_payout = share_per_player + (stat.balance - expected_per_player) %}
+    {% if player_payout < 0 %}
+        {% set _ = players_with_negative_payout.append({'name': stat.player_name, 'payout': player_payout}) %}
+    {% endif %}
+{% endfor %}
+{% if players_with_negative_payout %}
+<div class="alert alert-warning">
+    <span class="alert-icon">&#9888;</span>
+    <div class="alert-content">
+        <strong>Warning: Negative Payout</strong><br>
+        <span>The following players have negative payouts:
+        {% for p in players_with_negative_payout %}{{ p.name }} (&pound;{{ "%.2f"|format(p.payout) }}){% if not loop.last %}, {% endif %}{% endfor %}
+        </span>
+    </div>
+</div>
+{% endif %}
+
 <!-- Main Summary Section -->
 <div class="summary-section">
     <div class="summary-grid">
