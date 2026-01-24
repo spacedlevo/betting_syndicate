@@ -54,8 +54,7 @@ def import_season(
         is_active=True
     )
     db.add(season)
-    db.commit()
-    db.refresh(season)
+    db.flush()  # Get the ID without committing
     print(f"Created season: {name}")
     return season
 
@@ -81,8 +80,7 @@ def import_players(db: Session, player_names: List[str]) -> Dict[str, Player]:
         else:
             player = Player(name=name, is_active=True)
             db.add(player)
-            db.commit()
-            db.refresh(player)
+            db.flush()  # Get the ID without committing
             players[name] = player
             print(f"Created player: {name}")
 
@@ -120,7 +118,7 @@ def assign_players_to_season(
             )
             db.add(ps)
 
-    db.commit()
+    db.flush()  # Flush without committing
     print(f"Assigned {len(players)} players to season {season.name}")
 
 
@@ -172,17 +170,15 @@ def import_transactions_from_csv(
     print(f"\nProcessing {len(transactions)} transactions...")
     print(f"Active players for winnings distribution: {num_players}")
 
-    for row in transactions:
-        try:
+    try:
+        for row in transactions:
             entry_date = parse_date(row['Date'])
             player_name = row['Player'].strip()
             amount = Decimal(row['Amount'].strip())
             transaction_type = row['Transaction'].strip().lower()
 
             if player_name not in players:
-                print(f"Warning: Unknown player '{player_name}', skipping")
-                counts['errors'] += 1
-                continue
+                raise ValueError(f"Unknown player '{player_name}'")
 
             player = players[player_name]
 
@@ -212,7 +208,8 @@ def import_transactions_from_csv(
                     odds=None,
                     bet_date=entry_date,
                     status='pending',  # Will be updated if we see a win
-                    notes='Imported from CSV'
+                    notes='Imported from CSV',
+                    sport_id=None
                 )
                 db.add(bet)
                 db.flush()  # Get the bet ID
@@ -265,16 +262,20 @@ def import_transactions_from_csv(
                 counts['payouts'] += 1
 
             else:
-                print(f"Warning: Unknown transaction type '{transaction_type}', skipping")
-                counts['errors'] += 1
+                raise ValueError(f"Unknown transaction type '{transaction_type}'")
 
-            # Commit after each successful transaction to avoid cascading errors
-            db.commit()
+        # Commit all transactions at once if no errors
+        db.commit()
+        print("All transactions committed successfully.")
 
-        except Exception as e:
-            print(f"Error processing row {row}: {e}")
-            db.rollback()
-            counts['errors'] += 1
+    except Exception as e:
+        # Rollback everything on any error to avoid duplicates
+        db.rollback()
+        counts['errors'] += 1
+        print(f"\nERROR: {e}")
+        print("Rolling back all transactions to avoid duplicates.")
+        print("Please fix the CSV and re-import.")
+        raise  # Re-raise to stop the import
 
     return counts
 
@@ -367,7 +368,7 @@ def import_week_assignments(
 
             weeks_imported += 1
 
-    db.commit()
+    db.flush()  # Flush without committing - let caller handle commit
     print(f"Imported {weeks_imported} weeks with assignments")
     return weeks_imported
 
@@ -381,6 +382,9 @@ def run_import(
     """
     Run the full import process.
 
+    All operations are atomic - if any step fails, everything is rolled back
+    to prevent duplicate data on re-import.
+
     Args:
         db: Database session
         csv_path: Path to CSV file
@@ -389,53 +393,65 @@ def run_import(
 
     Returns:
         Dict with import results
+
+    Raises:
+        Exception: If any step fails, rolls back and re-raises
     """
     print("=" * 60)
     print("BETTING SYNDICATE DATA IMPORT")
     print("=" * 60)
 
-    # Step 1: Read CSV to get unique player names
-    print("\n1. Reading CSV to extract player names...")
-    player_names = set()
-    with open(csv_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row.get('Player'):
-                player_names.add(row['Player'].strip())
+    try:
+        # Step 1: Read CSV to get unique player names
+        print("\n1. Reading CSV to extract player names...")
+        player_names = set()
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row.get('Player'):
+                    player_names.add(row['Player'].strip())
 
-    player_names = sorted(player_names)
-    print(f"   Found {len(player_names)} unique players: {', '.join(player_names)}")
+        player_names = sorted(player_names)
+        print(f"   Found {len(player_names)} unique players: {', '.join(player_names)}")
 
-    # Step 2: Create season
-    print(f"\n2. Creating season '{season_name}'...")
-    season = import_season(db, season_name, season_start)
+        # Step 2: Create season
+        print(f"\n2. Creating season '{season_name}'...")
+        season = import_season(db, season_name, season_start)
 
-    # Step 3: Create players
-    print("\n3. Creating players...")
-    players = import_players(db, player_names)
+        # Step 3: Create players
+        print("\n3. Creating players...")
+        players = import_players(db, player_names)
 
-    # Step 4: Assign players to season
-    print("\n4. Assigning players to season...")
-    assign_players_to_season(db, players, season, season_start)
+        # Step 4: Assign players to season
+        print("\n4. Assigning players to season...")
+        assign_players_to_season(db, players, season, season_start)
 
-    # Step 5: Import transactions
-    print("\n5. Importing transactions...")
-    counts = import_transactions_from_csv(db, csv_path, season, players)
+        # Step 5: Import transactions
+        print("\n5. Importing transactions...")
+        counts = import_transactions_from_csv(db, csv_path, season, players)
 
-    # Summary
-    print("\n" + "=" * 60)
-    print("IMPORT COMPLETE")
-    print("=" * 60)
-    print(f"Season: {season_name} (ID: {season.id})")
-    print(f"Players: {len(players)}")
-    print(f"Contributions imported: {counts['contributions']}")
-    print(f"Bets placed imported: {counts['bets_placed']}")
-    print(f"Winnings distributed: {counts['winnings']}")
-    print(f"Payouts imported: {counts['payouts']}")
-    print(f"Errors: {counts['errors']}")
+        # Summary
+        print("\n" + "=" * 60)
+        print("IMPORT COMPLETE")
+        print("=" * 60)
+        print(f"Season: {season_name} (ID: {season.id})")
+        print(f"Players: {len(players)}")
+        print(f"Contributions imported: {counts['contributions']}")
+        print(f"Bets placed imported: {counts['bets_placed']}")
+        print(f"Winnings distributed: {counts['winnings']}")
+        print(f"Payouts imported: {counts['payouts']}")
+        print(f"Errors: {counts['errors']}")
 
-    return {
-        'season': season,
-        'players': players,
-        'counts': counts
-    }
+        return {
+            'season': season,
+            'players': players,
+            'counts': counts
+        }
+
+    except Exception as e:
+        print("\n" + "=" * 60)
+        print("IMPORT FAILED - ROLLING BACK")
+        print("=" * 60)
+        print(f"Error: {e}")
+        db.rollback()
+        raise
