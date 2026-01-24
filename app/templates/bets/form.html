@@ -43,6 +43,15 @@
             <input type="text" id="odds" name="odds" placeholder="e.g., 5/1, 2.5, evens">
         </div>
 
+        <div class="form-group">
+            <label for="sport_id">Sport</label>
+            <select id="sport_id" name="sport_id">
+                {% for sport in sports %}
+                <option value="{{ sport.id }}" {% if sport.name == 'Football' %}selected{% endif %}>{{ sport.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
         <div id="potential-winnings" class="stats-box" style="display: none; margin-bottom: 1rem; padding: 1rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="color: var(--text-muted);">Potential Return:</span>

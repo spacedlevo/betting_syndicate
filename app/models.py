@@ -179,6 +179,20 @@ class LedgerEntry(Base):
     )
 
 
+class Sport(Base):
+    """
+    Represents a sport that can be bet on.
+    """
+    __tablename__ = "sports"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False, unique=True)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+
+    # Relationships
+    bets = relationship("Bet", back_populates="sport")
+
+
 class Bet(Base):
     """
     Represents a bet placed by the syndicate.
@@ -200,6 +214,7 @@ class Bet(Base):
     stake = Column(Numeric(10, 2), nullable=False)
     description = Column(Text, nullable=False)
     odds = Column(String(50), nullable=True)  # e.g., "5/1", "2.5", "evens"
+    sport_id = Column(Integer, ForeignKey("sports.id"), nullable=True)
     bet_date = Column(Date, nullable=False)
     status = Column(String(20), default='pending', nullable=False)
     result_date = Column(Date, nullable=True)
@@ -211,6 +226,7 @@ class Bet(Base):
     # Relationships
     week = relationship("Week", back_populates="bets")
     placed_by_player = relationship("Player", back_populates="placed_bets")
+    sport = relationship("Sport", back_populates="bets")
     ledger_entries = relationship("LedgerEntry", back_populates="bet")
 
     # Constraints

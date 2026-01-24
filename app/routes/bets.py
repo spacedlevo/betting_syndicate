@@ -13,7 +13,7 @@ from datetime import date
 from decimal import Decimal
 
 from app.database import get_db
-from app.models import Bet, Player, PlayerSeason, Season, Week, LedgerEntry
+from app.models import Bet, Player, PlayerSeason, Season, Week, LedgerEntry, Sport
 from app import ledger
 
 
@@ -96,11 +96,15 @@ async def new_bet_form(request: Request, db: Session = Depends(get_db)):
         ).all()
         players = [ps.player for ps in player_seasons]
 
+    # Get all sports
+    sports = db.query(Sport).order_by(Sport.name).all()
+
     return templates.TemplateResponse("bets/form.html", {
         "request": request,
         "bet": None,
         "players": players,
-        "season": season
+        "season": season,
+        "sports": sports
     })
 
 
@@ -111,6 +115,7 @@ async def create_bet(
     stake: Decimal = Form(...),
     description: str = Form(...),
     odds: str = Form(None),
+    sport_id: int = Form(None),
     bet_date: date = Form(...),
     screenshot: UploadFile = File(None),
     db: Session = Depends(get_db)
@@ -132,6 +137,7 @@ async def create_bet(
         stake=stake,
         description=description,
         odds=odds if odds else None,
+        sport_id=sport_id if sport_id else None,
         bet_date=bet_date,
         status='pending',
         screenshot=screenshot_filename
