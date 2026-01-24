@@ -11,7 +11,7 @@ from datetime import date
 from typing import Optional
 
 from app.database import get_db
-from app.models import Season
+from app.models import Season, Player, PlayerSeason
 
 router = APIRouter()
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
@@ -44,11 +44,13 @@ async def list_seasons(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/new", response_class=HTMLResponse)
-async def new_season_form(request: Request):
+async def new_season_form(request: Request, db: Session = Depends(get_db)):
     """Show form to create a new season."""
+    players = db.query(Player).filter(Player.is_active == True).order_by(Player.name).all()
     return templates.TemplateResponse("seasons/form.html", {
         "request": request,
-        "season": None
+        "season": None,
+        "players": players
     })
 
 
@@ -57,18 +59,36 @@ async def create_season(
     request: Request,
     name: str = Form(...),
     start_date: date = Form(...),
+    end_date: Optional[date] = Form(None),
     db: Session = Depends(get_db)
 ):
     """Create a new season."""
+    # Get selected player IDs from form
+    form_data = await request.form()
+    selected_player_ids = [int(pid) for pid in form_data.getlist("players")]
+
     # Deactivate all other seasons
     db.query(Season).update({Season.is_active: False})
 
     season = Season(
         name=name,
         start_date=start_date,
+        end_date=end_date,
         is_active=True
     )
     db.add(season)
+    db.commit()
+    db.refresh(season)
+
+    # Add selected players to the season
+    for player_id in selected_player_ids:
+        ps = PlayerSeason(
+            player_id=player_id,
+            season_id=season.id,
+            joined_date=start_date,
+            is_active=True
+        )
+        db.add(ps)
     db.commit()
 
     return RedirectResponse(url="/seasons", status_code=303)

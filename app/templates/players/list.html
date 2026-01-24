@@ -9,8 +9,11 @@
 </div>
 
 {% if season %}
-<div class="alert alert-info">
-    Season: {{ season.name }} | Active players: {{ player_data|selectattr('in_season')|list|length }}
+<div class="alert alert-info" style="display: flex; justify-content: space-between; align-items: center;">
+    <span>Season: {{ season.name }} | Active players: {{ player_data|selectattr('in_season')|list|length }}</span>
+    <button type="button" id="toggle-inactive-btn" class="btn btn-sm btn-secondary" onclick="toggleInactivePlayers()">
+        Show Inactive ({{ player_data|rejectattr('in_season')|list|length }})
+    </button>
 </div>
 {% endif %}
 
@@ -32,7 +35,7 @@
             </thead>
             <tbody>
                 {% for data in player_data %}
-                <tr class="{% if data.profit_loss < 0 %}row-negative{% elif data.bet_balance > 0 %}row-warning{% endif %}">
+                <tr class="{% if data.profit_loss < 0 %}row-negative{% elif data.bet_balance > 0 %}row-warning{% endif %}{% if not data.in_season %} inactive-player{% endif %}"{% if not data.in_season %} style="display: none;"{% endif %}>
                     <td>
                         <a href="/players/{{ data.player.id }}">{{ data.player.name }}</a>
                     </td>
@@ -68,4 +71,25 @@
         </table>
     </div>
 </div>
+
+<script>
+let showingInactive = false;
+
+function toggleInactivePlayers() {
+    const inactiveRows = document.querySelectorAll('.inactive-player');
+    const btn = document.getElementById('toggle-inactive-btn');
+
+    showingInactive = !showingInactive;
+
+    inactiveRows.forEach(row => {
+        row.style.display = showingInactive ? '' : 'none';
+    });
+
+    btn.textContent = showingInactive
+        ? 'Hide Inactive ({{ player_data|rejectattr("in_season")|list|length }})'
+        : 'Show Inactive ({{ player_data|rejectattr("in_season")|list|length }})';
+    btn.classList.toggle('btn-secondary', !showingInactive);
+    btn.classList.toggle('btn-warning', showingInactive);
+}
+</script>
 {% endblock %}

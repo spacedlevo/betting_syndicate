@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Import Data - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Import Data</h1>
+</div>
+
+{% if result %}
+<div class="alert {% if result.success %}alert-success{% else %}alert-danger{% endif %}" style="margin-bottom: 1.5rem;">
+    <strong>{{ result.message }}</strong>
+    {% if result.details %}
+    <ul style="margin-top: 0.5rem; margin-bottom: 0;">
+        {% for key, value in result.details.items() %}
+        <li>{{ key.replace('_', ' ').title() }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endif %}
+
+<div style="display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+    <!-- Import Transactions -->
+    <div class="card">
+        <h2 style="margin-top: 0;">Import Transactions</h2>
+        <p style="color: var(--text-muted);">
+            Import historical transactions from a CSV file. This will create a new season,
+            players, and all ledger entries.
+        </p>
+
+        <div class="alert alert-info" style="font-size: 0.875rem;">
+            <strong>CSV Format:</strong> Date, Player, Amount, Transaction<br>
+            <strong>Date format:</strong> DD/MM/YYYY<br>
+            <strong>Transaction types:</strong> paid in, placed, won, paid out
+        </div>
+
+        <form method="post" action="/import/transactions" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="season_name">Season Name</label>
+                <input type="text" id="season_name" name="season_name" required placeholder="e.g., 2024-2025">
+            </div>
+
+            <div class="form-group">
+                <label for="start_date">Season Start Date</label>
+                <input type="date" id="start_date" name="start_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="end_date">Season End Date (optional)</label>
+                <input type="date" id="end_date" name="end_date">
+                <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                    Set an end date to mark this as a completed/frozen season
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="is_active" value="true">
+                    <span>Set as active season</span>
+                </label>
+                <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                    Leave unchecked for historical seasons
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="csv_file_transactions">CSV File</label>
+                <input type="file" id="csv_file_transactions" name="csv_file" accept=".csv" required>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">Import Transactions</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Import Week Assignments -->
+    <div class="card">
+        <h2 style="margin-top: 0;">Import Week Assignments</h2>
+        <p style="color: var(--text-muted);">
+            Import week assignments (betting calendar) from a CSV file into an existing season.
+        </p>
+
+        <div class="alert alert-info" style="font-size: 0.875rem;">
+            <strong>CSV Format:</strong> start_date, player1_name, player2_name<br>
+            <strong>Date format:</strong> DD/MM/YYYY<br>
+            <strong>Note:</strong> Each row represents one week
+        </div>
+
+        <form method="post" action="/import/weeks" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="season_id">Season</label>
+                <select id="season_id" name="season_id" required>
+                    <option value="">Select season...</option>
+                    {% for season in seasons %}
+                    <option value="{{ season.id }}">{{ season.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="csv_file_weeks">CSV File</label>
+                <input type="file" id="csv_file_weeks" name="csv_file" accept=".csv" required>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">Import Weeks</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 1.5rem;">
+    <h2 style="margin-top: 0;">CSV Examples</h2>
+
+    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Transactions CSV</h3>
+    <pre style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.875rem;">Date,Player,Amount,Transaction
+01/09/2024,John Smith,5.00,paid in
+01/09/2024,Jane Doe,5.00,paid in
+02/09/2024,John Smith,10.00,placed
+05/09/2024,John Smith,25.00,won
+30/06/2025,Jane Doe,50.00,paid out</pre>
+
+    <h3 style="font-size: 1rem; margin-bottom: 0.5rem; margin-top: 1rem;">Week Assignments CSV</h3>
+    <pre style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 0.875rem;">02/09/2024,John Smith,Jane Doe
+09/09/2024,Bob Wilson,Alice Brown
+16/09/2024,Tom Jones,Sarah Davis</pre>
+</div>
+{% endblock %}
