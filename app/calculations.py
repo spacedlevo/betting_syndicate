@@ -515,7 +515,7 @@ def get_player_bet_balance(
     weeks_elapsed = days_elapsed // 7
 
     # Calculate budget: ROUNDUP(weeks / 6) * 30
-    budget = Decimal(math.ceil(weeks_elapsed / 6) * 30)
+    budget = Decimal(math.ceil((weeks_elapsed + 1) / 6) * 30)
 
     # Get bets placed by this player
     bets_placed = get_player_total_bets(db, player_id, season_id)
