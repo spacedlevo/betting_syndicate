@@ -58,6 +58,22 @@
     // Set default date to today
     document.getElementById('result_date').valueAsDate = new Date();
 
+    function parseOdds(oddsStr) {
+        if (!oddsStr) return null;
+        const odds = oddsStr.trim().toLowerCase();
+        if (odds === 'evens' || odds === 'even') return 2.0;
+        if (odds.includes('/')) {
+            const parts = odds.split('/');
+            if (parts.length === 2) {
+                const n = parseFloat(parts[0]), d = parseFloat(parts[1]);
+                if (!isNaN(n) && !isNaN(d) && d !== 0) return (n / d) + 1;
+            }
+            return null;
+        }
+        const dec = parseFloat(odds);
+        return (!isNaN(dec) && dec > 0) ? dec : null;
+    }
+
     function toggleWinnings() {
         const status = document.getElementById('status').value;
         const winningsGroup = document.getElementById('winnings-group');
@@ -66,6 +82,22 @@
         if (status === 'won') {
             winningsGroup.style.display = 'block';
             winningsInput.required = true;
+
+            // Pre-fill with calculated return if odds are available
+            if (!winningsInput.value) {
+                const stake = {{ bet.stake }};
+                const oddsStr = "{{ bet.odds or '' }}";
+                const isFreeBet = {{ bet.is_free_bet|int }};
+                const decimalOdds = parseOdds(oddsStr);
+
+                if (decimalOdds !== null && stake > 0) {
+                    if (isFreeBet) {
+                        winningsInput.value = (stake * (decimalOdds - 1)).toFixed(2);
+                    } else {
+                        winningsInput.value = (stake * decimalOdds).toFixed(2);
+                    }
+                }
+            }
         } else {
             winningsGroup.style.display = 'none';
             winningsInput.required = false;

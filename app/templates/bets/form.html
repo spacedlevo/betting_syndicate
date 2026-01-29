@@ -40,7 +40,7 @@
 
         <div class="form-group">
             <label for="odds">Odds (optional)</label>
-            <input type="text" id="odds" name="odds" placeholder="e.g., 5/1, 2.5, evens">
+            <input type="number" id="odds" name="odds" step="0.01" min="1.01" placeholder="e.g., 2.50">
         </div>
 
         <div class="form-group">
@@ -112,34 +112,10 @@
 
     function parseOdds(oddsStr) {
         if (!oddsStr) return null;
-
-        const odds = oddsStr.trim().toLowerCase();
-
-        // Handle "evens" or "even"
-        if (odds === 'evens' || odds === 'even') {
-            return 2.0;  // Decimal odds for evens
-        }
-
-        // Handle fractional odds (e.g., "5/1", "11/4")
-        if (odds.includes('/')) {
-            const parts = odds.split('/');
-            if (parts.length === 2) {
-                const numerator = parseFloat(parts[0]);
-                const denominator = parseFloat(parts[1]);
-                if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
-                    // Convert fractional to decimal: (num/denom) + 1
-                    return (numerator / denominator) + 1;
-                }
-            }
-            return null;
-        }
-
-        // Handle decimal odds (e.g., "2.5", "1.5")
-        const decimalOdds = parseFloat(odds);
-        if (!isNaN(decimalOdds) && decimalOdds > 0) {
+        const decimalOdds = parseFloat(oddsStr);
+        if (!isNaN(decimalOdds) && decimalOdds > 1) {
             return decimalOdds;
         }
-
         return null;
     }
 
