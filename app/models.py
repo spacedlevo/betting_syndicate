@@ -220,6 +220,7 @@ class Bet(Base):
     result_date = Column(Date, nullable=True)
     winnings = Column(Numeric(10, 2), nullable=True)  # Total return if won (stake + profit)
     notes = Column(Text, nullable=True)
+    is_free_bet = Column(Boolean, default=False, nullable=False)  # Free bet from bookmaker (stake not returned)
     screenshot = Column(String(255), nullable=True)  # Path to screenshot file
     created_at = Column(DateTime, default=func.now(), nullable=False)
 

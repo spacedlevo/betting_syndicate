@@ -39,7 +39,10 @@
                     <td>{{ bet.placed_by_player.name }}</td>
                     <td>{{ bet.description[:50] }}{% if bet.description|length > 50 %}...{% endif %}</td>
                     <td>{{ bet.odds or '-' }}</td>
-                    <td class="text-right money">&pound;{{ "%.2f"|format(bet.stake) }}</td>
+                    <td class="text-right money">
+                        &pound;{{ "%.2f"|format(bet.stake) }}
+                        {% if bet.is_free_bet %}<span class="badge" style="background: var(--info-color, #3b82f6); color: #fff; font-size: 0.65rem; margin-left: 0.25rem;">FREE</span>{% endif %}
+                    </td>
                     <td>
                         <span class="badge badge-{{ bet.status }}">{{ bet.status }}</span>
                     </td>
@@ -47,7 +50,7 @@
                         {% if bet.winnings %}
                             &pound;{{ "%.2f"|format(bet.winnings) }}
                         {% elif bet.status == 'pending' and bet.odds %}
-                            <span class="potential-return" data-stake="{{ bet.stake }}" data-odds="{{ bet.odds }}" style="color: var(--text-muted);">-</span>
+                            <span class="potential-return" data-stake="{{ bet.stake }}" data-odds="{{ bet.odds }}" data-free-bet="{{ bet.is_free_bet|int }}" style="color: var(--text-muted);">-</span>
                         {% else %}
                             -
                         {% endif %}
@@ -110,14 +113,22 @@
     document.querySelectorAll('.potential-return').forEach(function(el) {
         const stake = parseFloat(el.dataset.stake);
         const oddsStr = el.dataset.odds;
+        const isFreeBet = el.dataset.freeBet === '1';
         const decimalOdds = parseOdds(oddsStr);
 
         if (decimalOdds !== null && stake > 0) {
-            const potentialReturn = stake * decimalOdds;
-            el.textContent = '£' + potentialReturn.toFixed(2);
+            if (isFreeBet) {
+                // Free bet: profit only (stake not returned)
+                const profit = stake * (decimalOdds - 1);
+                el.textContent = '£' + profit.toFixed(2);
+                el.title = 'Free bet - profit only (stake not returned)';
+            } else {
+                const potentialReturn = stake * decimalOdds;
+                el.textContent = '£' + potentialReturn.toFixed(2);
+                el.title = 'Potential return (profit: £' + (potentialReturn - stake).toFixed(2) + ')';
+            }
             el.style.color = 'var(--success-color)';
             el.style.fontStyle = 'italic';
-            el.title = 'Potential return (profit: £' + (potentialReturn - stake).toFixed(2) + ')';
         }
     });
 </script>

@@ -52,12 +52,22 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="is_free_bet" name="is_free_bet" value="true" style="width: auto;">
+                Free Bet
+            </label>
+            <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                Free bet from bookmaker &mdash; stake is not returned if won
+            </small>
+        </div>
+
         <div id="potential-winnings" class="stats-box" style="display: none; margin-bottom: 1rem; padding: 1rem; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: var(--text-muted);">Potential Return:</span>
+                <span id="potential-return-label" style="color: var(--text-muted);">Potential Return:</span>
                 <span id="potential-return" style="font-size: 1.25rem; font-weight: 600; color: var(--success-color);">&pound;0.00</span>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+            <div id="potential-profit-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
                 <span style="color: var(--text-muted);">Potential Profit:</span>
                 <span id="potential-profit" style="font-weight: 500; color: var(--success-color);">&pound;0.00</span>
             </div>
@@ -93,8 +103,11 @@
     // Potential winnings calculation
     const stakeInput = document.getElementById('stake');
     const oddsInput = document.getElementById('odds');
+    const freeBetCheckbox = document.getElementById('is_free_bet');
     const potentialWinningsDiv = document.getElementById('potential-winnings');
     const potentialReturnSpan = document.getElementById('potential-return');
+    const potentialReturnLabel = document.getElementById('potential-return-label');
+    const potentialProfitRow = document.getElementById('potential-profit-row');
     const potentialProfitSpan = document.getElementById('potential-profit');
 
     function parseOdds(oddsStr) {
@@ -133,13 +146,24 @@
     function calculatePotentialWinnings() {
         const stake = parseFloat(stakeInput.value);
         const decimalOdds = parseOdds(oddsInput.value);
+        const isFreeBet = freeBetCheckbox.checked;
 
         if (stake > 0 && decimalOdds !== null) {
-            const potentialReturn = stake * decimalOdds;
-            const potentialProfit = potentialReturn - stake;
+            const potentialProfit = stake * (decimalOdds - 1);
 
-            potentialReturnSpan.textContent = '£' + potentialReturn.toFixed(2);
-            potentialProfitSpan.textContent = '£' + potentialProfit.toFixed(2);
+            if (isFreeBet) {
+                // Free bet: only profit returned (stake not returned)
+                potentialReturnLabel.textContent = 'Potential Return (profit only):';
+                potentialReturnSpan.textContent = '£' + potentialProfit.toFixed(2);
+                potentialProfitRow.style.display = 'none';
+            } else {
+                // Normal bet: stake + profit returned
+                const potentialReturn = stake * decimalOdds;
+                potentialReturnLabel.textContent = 'Potential Return:';
+                potentialReturnSpan.textContent = '£' + potentialReturn.toFixed(2);
+                potentialProfitSpan.textContent = '£' + potentialProfit.toFixed(2);
+                potentialProfitRow.style.display = 'flex';
+            }
             potentialWinningsDiv.style.display = 'block';
         } else {
             potentialWinningsDiv.style.display = 'none';
@@ -148,5 +172,6 @@
 
     stakeInput.addEventListener('input', calculatePotentialWinnings);
     oddsInput.addEventListener('input', calculatePotentialWinnings);
+    freeBetCheckbox.addEventListener('change', calculatePotentialWinnings);
 </script>
 {% endblock %}

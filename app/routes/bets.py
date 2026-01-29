@@ -116,6 +116,7 @@ async def create_bet(
     description: str = Form(...),
     odds: str = Form(None),
     sport_id: int = Form(None),
+    is_free_bet: bool = Form(False),
     bet_date: date = Form(...),
     screenshot: UploadFile = File(None),
     db: Session = Depends(get_db)
@@ -138,6 +139,7 @@ async def create_bet(
         description=description,
         odds=odds if odds else None,
         sport_id=sport_id if sport_id else None,
+        is_free_bet=is_free_bet,
         bet_date=bet_date,
         status='pending',
         screenshot=screenshot_filename
@@ -145,16 +147,19 @@ async def create_bet(
     db.add(bet)
     db.flush()
 
-    # Create ledger entry for bet placed
-    ledger.record_bet_placed(
-        db,
-        bet_id=bet.id,
-        player_id=placed_by_player_id,
-        season_id=season.id,
-        week_id=None,
-        stake=stake,
-        entry_date=bet_date
-    )
+    # Free bets don't cost the syndicate anything - no ledger entry
+    if not is_free_bet:
+        ledger.record_bet_placed(
+            db,
+            bet_id=bet.id,
+            player_id=placed_by_player_id,
+            season_id=season.id,
+            week_id=None,
+            stake=stake,
+            entry_date=bet_date
+        )
+    else:
+        db.commit()
 
     return RedirectResponse(url="/bets", status_code=303)
 
@@ -224,8 +229,8 @@ async def update_result(
             entry_date=result_date,
             week_id=None
         )
-    elif status == 'void':
-        # Return stake to syndicate
+    elif status == 'void' and not bet.is_free_bet:
+        # Return stake to syndicate (free bets have nothing to return)
         ledger.record_bet_void(
             db,
             bet_id=bet.id,

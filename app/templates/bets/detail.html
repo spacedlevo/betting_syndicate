@@ -24,7 +24,10 @@
         </tr>
         <tr>
             <td style="padding: 0.5rem 0; color: var(--text-muted);">Stake</td>
-            <td style="padding: 0.5rem 0;">&pound;{{ "%.2f"|format(bet.stake) }}</td>
+            <td style="padding: 0.5rem 0;">
+                &pound;{{ "%.2f"|format(bet.stake) }}
+                {% if bet.is_free_bet %}<span class="badge" style="background: var(--info-color, #3b82f6); color: #fff; font-size: 0.75rem; margin-left: 0.5rem;">FREE BET</span>{% endif %}
+            </td>
         </tr>
         <tr>
             <td style="padding: 0.5rem 0; color: var(--text-muted);">Odds</td>
@@ -162,8 +165,14 @@
     const potentialReturnEl = document.getElementById('potential-return');
 
     if (decimalOdds !== null && potentialReturnEl) {
-        const potentialReturn = stake * decimalOdds;
-        potentialReturnEl.textContent = '£' + potentialReturn.toFixed(2) + ' (profit: £' + (potentialReturn - stake).toFixed(2) + ')';
+        const isFreeBet = {{ bet.is_free_bet|int }};
+        if (isFreeBet) {
+            const profit = stake * (decimalOdds - 1);
+            potentialReturnEl.textContent = '£' + profit.toFixed(2) + ' (free bet - profit only)';
+        } else {
+            const potentialReturn = stake * decimalOdds;
+            potentialReturnEl.textContent = '£' + potentialReturn.toFixed(2) + ' (profit: £' + (potentialReturn - stake).toFixed(2) + ')';
+        }
     } else if (potentialReturnEl) {
         potentialReturnEl.textContent = 'Unable to calculate';
     }
