@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Bets</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #eee;
+            --text-muted: #888;
+            --primary-color: #4a9eff;
+            --success-color: #4ade80;
+            --danger-color: #f87171;
+            --warning-color: #fbbf24;
+            --border-color: #2d3748;
+            --void-color: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .header .date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 6px 4px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+        }
+
+        .stat-item .value {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .stat-item .label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .positive { color: var(--success-color); }
+        .negative { color: var(--danger-color); }
+        .warning { color: var(--warning-color); }
+
+        .counts-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .count-badge {
+            flex: 1;
+            text-align: center;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .count-badge .num {
+            font-size: 1rem;
+        }
+
+        .count-won {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success-color);
+        }
+
+        .count-lost {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger-color);
+        }
+
+        .count-pending {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning-color);
+        }
+
+        .count-void {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--void-color);
+        }
+
+        .bet-card {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .bet-card:last-child {
+            border-bottom: none;
+        }
+
+        .bet-desc {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .bet-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+        .bet-meta-left {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .bet-player {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-won {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success-color);
+        }
+
+        .badge-lost {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--danger-color);
+        }
+
+        .badge-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--warning-color);
+        }
+
+        .badge-void {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--void-color);
+        }
+
+        .badge-free {
+            background: rgba(74, 158, 255, 0.2);
+            color: var(--primary-color);
+        }
+
+        .bet-winnings {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .bet-potential {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--warning-color);
+        }
+
+        .bet-date-group {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            padding: 6px 0 2px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .no-bets {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px 0;
+            font-size: 0.8rem;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    {% if not season %}
+    <div class="section">
+        <p style="text-align: center; color: var(--text-muted);">No active season</p>
+    </div>
+    {% else %}
+
+    <div class="header">
+        <h1>Weekly Bets</h1>
+        <div class="date">{{ week_ago.strftime('%d %b') }} &ndash; {{ today.strftime('%d %b %Y') }}</div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="section">
+        <div class="section-title">Overview</div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="value">{{ bets|length }}</div>
+                <div class="label">Bets</div>
+            </div>
+            <div class="stat-item">
+                <div class="value">&pound;{{ "%.2f"|format(total_staked) }}</div>
+                <div class="label">Staked</div>
+            </div>
+            <div class="stat-item">
+                <div class="value positive">&pound;{{ "%.2f"|format(total_returned) }}</div>
+                <div class="label">Returned</div>
+            </div>
+            <div class="stat-item">
+                <div class="value {% if net_pl >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if net_pl >= 0 %}+{% endif %}&pound;{{ "%.2f"|format(net_pl) }}
+                </div>
+                <div class="label">Net P/L</div>
+            </div>
+            {% if pending_potential > 0 %}
+            <div class="stat-item">
+                <div class="value warning">&pound;{{ "%.2f"|format(pending_potential) }}</div>
+                <div class="label">Pot. Return</div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="counts-row">
+            {% if won_count > 0 %}
+            <div class="count-badge count-won"><span class="num">{{ won_count }}</span> Won</div>
+            {% endif %}
+            {% if lost_count > 0 %}
+            <div class="count-badge count-lost"><span class="num">{{ lost_count }}</span> Lost</div>
+            {% endif %}
+            {% if pending_count > 0 %}
+            <div class="count-badge count-pending"><span class="num">{{ pending_count }}</span> Pending</div>
+            {% endif %}
+            {% if void_count > 0 %}
+            <div class="count-badge count-void"><span class="num">{{ void_count }}</span> Void</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bet List -->
+    <div class="section">
+        <div class="section-title">Bets</div>
+        {% if bets|length == 0 %}
+        <div class="no-bets">No bets placed this week</div>
+        {% else %}
+            {% set current_date = namespace(value=None) %}
+            {% for bet in bets %}
+                {% if bet.bet_date != current_date.value %}
+                    {% set current_date.value = bet.bet_date %}
+                    <div class="bet-date-group">{{ bet.bet_date.strftime('%A %d %b') }}</div>
+                {% endif %}
+                <div class="bet-card">
+                    <div class="bet-desc">
+                        {{ bet.description }}
+                        {% if bet.is_free_bet %}<span class="badge badge-free">Free</span>{% endif %}
+                    </div>
+                    <div class="bet-meta">
+                        <div class="bet-meta-left">
+                            <span class="bet-player">{{ bet.player_name.split(' ')[0] }}</span>
+                            <span>&pound;{{ "%.2f"|format(bet.stake) }}{% if bet.odds != '-' %} @ {{ bet.odds }}{% endif %}</span>
+                            {% if bet.sport %}<span>{{ bet.sport }}</span>{% endif %}
+                        </div>
+                        <div>
+                            {% if bet.status == 'won' %}
+                                <span class="bet-winnings">+&pound;{{ "%.2f"|format(bet.winnings) }}</span>
+                                <span class="badge badge-won">Won</span>
+                            {% elif bet.status == 'lost' %}
+                                <span class="badge badge-lost">Lost</span>
+                            {% elif bet.status == 'pending' %}
+                                {% if bet.potential_return %}<span class="bet-potential">&pound;{{ "%.2f"|format(bet.potential_return) }}</span>{% endif %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elif bet.status == 'void' %}
+                                <span class="badge badge-void">Void</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Betting Syndicate &bull; {{ today.strftime('%d %B %Y') }}
+    </div>
+
+    {% endif %}
+</body>
+</html>

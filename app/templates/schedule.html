@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betting Schedule</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #eee;
+            --text-muted: #888;
+            --primary-color: #4a9eff;
+            --success-color: #4ade80;
+            --danger-color: #f87171;
+            --warning-color: #fbbf24;
+            --border-color: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .header .date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .player-row:last-child {
+            border-bottom: none;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .player-partner {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .week-info {
+            text-align: right;
+        }
+
+        .week-dates {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .week-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-current {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success-color);
+        }
+
+        .badge-next {
+            background: rgba(74, 158, 255, 0.2);
+            color: var(--primary-color);
+        }
+
+        .badge-none {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+        }
+
+        .current-row {
+            background: rgba(74, 222, 128, 0.05);
+            border-radius: 6px;
+            padding: 8px 8px;
+            margin: 0 -8px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px 0;
+            font-size: 0.8rem;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    {% if not season %}
+    <div class="section">
+        <p style="text-align: center; color: var(--text-muted);">No active season</p>
+    </div>
+    {% else %}
+
+    <div class="header">
+        <h1>Betting Schedule</h1>
+        <div class="date">{{ today.strftime('%d %B %Y') }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Next Bet Week Per Player</div>
+        {% if schedule|length == 0 %}
+        <div class="no-data">No players in season</div>
+        {% else %}
+            {% for entry in schedule %}
+            <div class="player-row{% if entry.is_current %} current-row{% endif %}">
+                <div class="player-info">
+                    <div class="player-name">
+                        {{ entry.player_name }}
+                        {% if entry.is_current %}
+                        <span class="badge badge-current">This Week</span>
+                        {% endif %}
+                    </div>
+                    {% if entry.partner_name %}
+                    <div class="player-partner">with {{ entry.partner_name.split(' ')[0] }}</div>
+                    {% endif %}
+                </div>
+                <div class="week-info">
+                    {% if entry.week_start %}
+                    <div class="week-dates">{{ entry.week_start.strftime('%d %b') }} &ndash; {{ entry.week_end.strftime('%d %b') }}</div>
+                    <div class="week-label">Week {{ entry.week_number }}</div>
+                    {% else %}
+                    <span class="badge badge-none">Not Scheduled</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Betting Syndicate &bull; {{ today.strftime('%d %B %Y') }}
+    </div>
+
+    {% endif %}
+</body>
+</html>

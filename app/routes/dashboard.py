@@ -2,7 +2,8 @@
 Dashboard route - main overview page.
 """
 
-from datetime import date
+from datetime import date, timedelta
+from decimal import Decimal
 
 from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
@@ -185,4 +186,198 @@ async def screenshot_summary(request: Request, db: Session = Depends(get_db)):
         "current_week": current_week,
         "weeks_elapsed": weeks_elapsed,
         "today": today
+    })
+
+
+def _calc_potential_return(stake: float, odds: str, is_free_bet: bool) -> float | None:
+    """Parse odds string and calculate potential return.
+
+    Supports fractional (5/1), decimal (6.0), and 'evens'.
+    For free bets the stake is not returned, only the profit.
+    Returns None if odds cannot be parsed.
+    """
+    if not odds:
+        return None
+    odds = odds.strip().lower()
+    try:
+        if odds == "evens":
+            decimal_odds = 2.0
+        elif "/" in odds:
+            num, den = odds.split("/", 1)
+            decimal_odds = float(num) / float(den) + 1
+        else:
+            decimal_odds = float(odds)
+            # If someone entered fractional value without slash (e.g. "5")
+            # treat values >= 2 as already decimal, < 2 ambiguous but keep as-is
+    except (ValueError, ZeroDivisionError):
+        return None
+    if is_free_bet:
+        return round(stake * (decimal_odds - 1), 2)
+    return round(stake * decimal_odds, 2)
+
+
+@router.get("/weekly-bets", response_class=HTMLResponse)
+async def weekly_bets(request: Request, db: Session = Depends(get_db)):
+    """
+    Screenshot-friendly page showing bets placed in the last 7 days.
+    Optimized for WhatsApp sharing.
+    """
+    season = db.query(Season).filter(Season.is_active).first()
+
+    if not season:
+        return templates.TemplateResponse("weekly_bets.html", {
+            "request": request,
+            "season": None,
+        })
+
+    today = date.today()
+    week_ago = today - timedelta(days=7)
+
+    # Get bets from last 7 days
+    bets = db.query(Bet).filter(
+        Bet.bet_date >= week_ago
+    ).order_by(Bet.bet_date.desc(), Bet.created_at.desc()).all()
+
+    # Calculate summary stats
+    total_staked = sum(float(b.stake) for b in bets)
+    total_returned = sum(float(b.winnings or 0) for b in bets if b.status == 'won')
+    won_count = sum(1 for b in bets if b.status == 'won')
+    lost_count = sum(1 for b in bets if b.status == 'lost')
+    pending_count = sum(1 for b in bets if b.status == 'pending')
+    void_count = sum(1 for b in bets if b.status == 'void')
+    net_pl = total_returned - total_staked
+
+    # Build bet data with player names
+    bet_data = []
+    for b in bets:
+        potential_return = _calc_potential_return(float(b.stake), b.odds, b.is_free_bet)
+        bet_data.append({
+            "description": b.description,
+            "player_name": b.placed_by_player.name,
+            "stake": float(b.stake),
+            "odds": b.odds or "-",
+            "status": b.status,
+            "bet_date": b.bet_date,
+            "winnings": float(b.winnings) if b.winnings else None,
+            "is_free_bet": b.is_free_bet,
+            "sport": b.sport.name if b.sport else None,
+            "potential_return": potential_return,
+        })
+
+    # Total potential return from pending bets
+    pending_potential = sum(
+        b["potential_return"] for b in bet_data
+        if b["status"] == "pending" and b["potential_return"] is not None
+    )
+
+    return templates.TemplateResponse("weekly_bets.html", {
+        "request": request,
+        "season": season,
+        "bets": bet_data,
+        "total_staked": total_staked,
+        "total_returned": total_returned,
+        "net_pl": net_pl,
+        "pending_potential": pending_potential,
+        "won_count": won_count,
+        "lost_count": lost_count,
+        "pending_count": pending_count,
+        "void_count": void_count,
+        "today": today,
+        "week_ago": week_ago,
+    })
+
+
+@router.get("/schedule", response_class=HTMLResponse)
+async def schedule(request: Request, db: Session = Depends(get_db)):
+    """
+    Screenshot-friendly page showing when each player's next betting week starts.
+    Optimized for WhatsApp sharing.
+    """
+    season = db.query(Season).filter(Season.is_active).first()
+
+    if not season:
+        return templates.TemplateResponse("schedule.html", {
+            "request": request,
+            "season": None,
+        })
+
+    today = date.today()
+
+    # Get all active players in the season
+    player_seasons = db.query(PlayerSeason).filter(
+        PlayerSeason.season_id == season.id,
+        PlayerSeason.is_active == True
+    ).all()
+
+    # Get all upcoming assignments (current week + future), ordered by date
+    upcoming_assignments = db.query(WeekAssignment).join(Week).filter(
+        Week.season_id == season.id,
+        Week.end_date >= today,
+    ).order_by(Week.start_date, WeekAssignment.assignment_order).all()
+
+    # For each player, find their next assignment (first occurrence)
+    player_next = {}
+    for assignment in upcoming_assignments:
+        if assignment.player_id not in player_next:
+            player_next[assignment.player_id] = assignment
+
+    # Build a mapping of week_id -> list of assigned player names (for partner lookup)
+    week_players = {}
+    for assignment in upcoming_assignments:
+        wid = assignment.week_id
+        if wid not in week_players:
+            week_players[wid] = []
+        week_players[wid].append({
+            "player_id": assignment.player_id,
+            "player_name": assignment.player.name,
+        })
+
+    # Build schedule data
+    schedule_data = []
+    for ps in player_seasons:
+        player = ps.player
+        next_assignment = player_next.get(player.id)
+
+        if next_assignment:
+            week = next_assignment.week
+            is_current = week.start_date <= today <= week.end_date
+
+            # Find partner name
+            partners = week_players.get(week.id, [])
+            partner_name = None
+            for p in partners:
+                if p["player_id"] != player.id:
+                    partner_name = p["player_name"]
+                    break
+
+            schedule_data.append({
+                "player_name": player.name,
+                "week_start": week.start_date,
+                "week_end": week.end_date,
+                "week_number": week.week_number,
+                "is_current": is_current,
+                "partner_name": partner_name,
+            })
+        else:
+            schedule_data.append({
+                "player_name": player.name,
+                "week_start": None,
+                "week_end": None,
+                "week_number": None,
+                "is_current": False,
+                "partner_name": None,
+            })
+
+    # Sort: current week first, then by start date, unassigned last
+    schedule_data.sort(key=lambda x: (
+        x["week_start"] is None,
+        not x["is_current"],
+        x["week_start"] or date.max,
+    ))
+
+    return templates.TemplateResponse("schedule.html", {
+        "request": request,
+        "season": season,
+        "schedule": schedule_data,
+        "today": today,
     })
