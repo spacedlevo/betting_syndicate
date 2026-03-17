@@ -261,7 +261,7 @@
             {% for player in player_stats %}
             <div class="player-row">
                 <div class="player-name">{{ player.player_name }}</div>
-                <div class="player-stat {% if player.won > 0 %}positive{% endif %}">&pound;{{ "%.2f"|format(player.won) }}</div>
+                <div class="player-stat {% if player.profit_loss > 0 %}positive{% endif %}">&pound;{{ "%.2f"|format(player.won) }}</div>
                 <div class="player-stat">
                     {% if player.bet_balance > 0 %}
                     <span class="badge badge-budget">&pound;{{ "%.0f"|format(player.bet_balance) }}</span>
