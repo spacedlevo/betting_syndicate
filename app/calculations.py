@@ -216,7 +216,7 @@ def get_player_profit_loss(
     """
     Calculate player's profit/loss.
 
-    This is winnings minus contributions.
+    This is winnings minus bets placed.
 
     Args:
         db: Database session
@@ -227,8 +227,8 @@ def get_player_profit_loss(
         Profit/loss as Decimal (negative means player has lost)
     """
     winnings = get_player_total_winnings(db, player_id, season_id)
-    contributions = get_player_total_contributions(db, player_id, season_id)
-    return winnings - contributions
+    bets_placed = get_player_total_bets(db, player_id, season_id)
+    return winnings - bets_placed
 
 
 def get_season_total_contributions(db: Session, season_id: int) -> Decimal:
