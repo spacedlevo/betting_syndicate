@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Sport - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Add New Sport</h1>
+    <a href="/sports" class="btn btn-outline">Back to Sports</a>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <form method="post" action="/sports">
+        <div class="form-group">
+            <label for="name">Sport Name</label>
+            <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                value="{% if sport %}{{ sport.name }}{% endif %}"
+                required
+                placeholder="e.g., Football, Tennis, Basketball"
+                maxlength="100"
+            >
+            <small>Enter the name of the sport (e.g., Football, Tennis, Basketball)</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add Sport</button>
+            <a href="/sports" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

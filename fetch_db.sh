@@ -2,7 +2,7 @@
 
 # Script to retrieve the database from the remote server
 
-REMOTE_USER="syndicate"
+REMOTE_USER="betting-syndicate"
 REMOTE_HOST="betting.local"
 REMOTE_PATH="/opt/betting-syndicate/betting_syndicate/database/betting_syndicate.db"
 LOCAL_PATH="./database/betting_syndicate.db"

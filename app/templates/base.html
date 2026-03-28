@@ -25,6 +25,7 @@
             <li><a href="/" class="{% if request.url.path == '/' %}active{% endif %}">Dashboard</a></li>
             <li><a href="/players" class="{% if '/players' in request.url.path %}active{% endif %}">Players</a></li>
             <li><a href="/bets" class="{% if '/bets' in request.url.path %}active{% endif %}">Bets</a></li>
+            <li><a href="/sports" class="{% if '/sports' in request.url.path %}active{% endif %}">Sports</a></li>
             <li><a href="/ledger" class="{% if '/ledger' in request.url.path %}active{% endif %}">Ledger</a></li>
             <li><a href="/seasons" class="{% if '/seasons' in request.url.path %}active{% endif %}">Seasons</a></li>
         </ul>
