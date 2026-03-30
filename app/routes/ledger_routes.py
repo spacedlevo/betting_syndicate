@@ -3,10 +3,12 @@ Ledger routes for viewing transactions and adding contributions.
 """
 
 from typing import Optional
+import io
+import csv
 
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from pathlib import Path
 from datetime import date
@@ -63,6 +65,9 @@ async def list_ledger(
     # Get players for filter dropdown
     players = db.query(Player).filter(Player.is_active == True).order_by(Player.name).all()
 
+    # Get all seasons for download dropdown
+    all_seasons = db.query(Season).order_by(Season.start_date.desc()).all()
+
     # Entry types for filter
     entry_types = ['contribution', 'bet_placed', 'winnings', 'bet_void', 'payout']
 
@@ -80,7 +85,8 @@ async def list_ledger(
         "page": page,
         "total": total,
         "per_page": per_page,
-        "season": season
+        "season": season,
+        "all_seasons": all_seasons
     })
 
 
@@ -184,3 +190,76 @@ async def add_payout(
     )
 
     return RedirectResponse(url="/", status_code=303)
+
+
+@router.get("/download-csv")
+async def download_ledger_csv(
+    season_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    """Download ledger entries for a season as CSV."""
+    
+    # If no season specified, use active season
+    if season_id:
+        season = db.query(Season).filter(Season.id == season_id).first()
+    else:
+        season = db.query(Season).filter(Season.is_active == True).first()
+    
+    if not season:
+        # Return empty CSV if no season found
+        season_name = "No_Season"
+        entries = []
+    else:
+        season_name = season.name.replace(" ", "_").replace("/", "-")
+        # Get all ledger entries for the season
+        entries = db.query(LedgerEntry).filter(
+            LedgerEntry.season_id == season.id
+        ).order_by(
+            LedgerEntry.entry_date.asc(),
+            LedgerEntry.created_at.asc()
+        ).all()
+    
+    # Create CSV content
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow([
+        'Date',
+        'Entry Type',
+        'Player',
+        'Amount',
+        'Description',
+        'Bet ID',
+        'Week',
+        'Created At',
+        'Created By'
+    ])
+    
+    # Write data rows
+    for entry in entries:
+        writer.writerow([
+            entry.entry_date.strftime('%Y-%m-%d'),
+            entry.entry_type,
+            entry.player.name if entry.player else '',
+            str(entry.amount),
+            entry.description or '',
+            entry.bet_id or '',
+            f"Week {entry.week.week_number}" if entry.week else '',
+            entry.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            entry.created_by or ''
+        ])
+    
+    # Get the CSV content
+    csv_content = output.getvalue()
+    output.close()
+    
+    # Create filename with season name and date
+    filename = f"ledger_{season_name}_{date.today().strftime('%Y%m%d')}.csv"
+    
+    # Return as streaming response
+    return StreamingResponse(
+        io.BytesIO(csv_content.encode('utf-8')),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

@@ -4,10 +4,22 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>Ledger</h1>
+    <h1>Ledger{% if season %} - {{ season.name }}{% endif %}</h1>
     <div class="quick-actions">
         <a href="/ledger/contribute" class="btn btn-primary">Add Contribution</a>
         <a href="/ledger/payout" class="btn btn-secondary">Record Payout</a>
+        {% if all_seasons %}
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <select id="download-season" style="min-width: 150px;">
+                {% for s in all_seasons %}
+                <option value="{{ s.id }}" {% if season and s.id == season.id %}selected{% endif %}>
+                    {{ s.name }}
+                </option>
+                {% endfor %}
+            </select>
+            <button onclick="downloadCSV()" class="btn btn-outline">📥 Download CSV</button>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -97,4 +109,12 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function downloadCSV() {
+    const seasonSelect = document.getElementById('download-season');
+    const seasonId = seasonSelect.value;
+    window.location.href = `/ledger/download-csv?season_id=${seasonId}`;
+}
+</script>
 {% endblock %}

@@ -1,0 +1,320 @@
+Date,Entry Type,Player,Amount,Description,Bet ID,Week,Created At,Created By
+2025-08-11,contribution,James McNamee,25.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-11,contribution,Thomas Levin,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-11,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-11,contribution,David Bates,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,contribution,Gary Benyon,50.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,contribution,Andy Thacker,50.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,contribution,Ben Alston,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,contribution,Craig Pemberton,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,contribution,David Ashcroft,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,contribution,Chris Thacker,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-15,bet_placed,Shane Thomas,-25.00,Bet placed,1,,2026-01-18 13:24:43,import
+2025-08-15,bet_placed,Shane Thomas,-5.00,Bet placed,2,,2026-01-18 13:24:43,import
+2025-08-16,bet_placed,Craig Pemberton,-10.00,Bet placed,3,,2026-01-18 13:24:43,import
+2025-08-16,bet_placed,Craig Pemberton,-20.00,Bet placed,4,,2026-01-18 13:24:43,import
+2025-08-16,winnings,Craig Pemberton,41.73,Bet won,,,2026-01-18 13:24:43,import
+2025-08-18,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-20,contribution,Ste Mellor,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-22,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-24,bet_placed,Gary Benyon,-30.00,Bet placed,5,,2026-01-18 13:24:43,import
+2025-08-25,bet_placed,James McNamee,-20.00,Bet placed,6,,2026-01-18 13:24:43,import
+2025-08-25,bet_placed,James McNamee,-10.00,Bet placed,7,,2026-01-18 13:24:43,import
+2025-08-25,winnings,James McNamee,43.00,Bet won,,,2026-01-18 13:24:43,import
+2025-08-26,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-29,contribution,Chris Thacker,50.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-29,contribution,David Bates,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-30,contribution,Shane Thomas,10.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-30,contribution,Ste Mellor,50.00,Contribution,,,2026-01-18 13:24:43,import
+2025-08-30,bet_placed,Chris Thacker,-30.00,Bet placed,8,,2026-01-18 13:24:43,import
+2025-08-31,bet_placed,Colin Turner,-10.00,Bet placed,9,,2026-01-18 13:24:43,import
+2025-08-31,bet_placed,Colin Turner,-10.00,Bet placed,10,,2026-01-18 13:24:43,import
+2025-09-01,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-02,bet_placed,Ben Alston,-10.00,Bet placed,11,,2026-01-18 13:24:43,import
+2025-09-02,bet_placed,Colin Turner,-10.00,Bet placed,12,,2026-01-18 13:24:43,import
+2025-09-05,bet_placed,David Bates,-5.00,Bet placed,13,,2026-01-18 13:24:43,import
+2025-09-06,bet_placed,David Bates,-4.40,Bet placed,14,,2026-01-18 13:24:43,import
+2025-09-06,bet_placed,David Bates,-5.00,Bet placed,15,,2026-01-18 13:24:43,import
+2025-09-06,bet_placed,David Bates,-10.00,Bet placed,16,,2026-01-18 13:24:43,import
+2025-09-06,winnings,David Bates,0.81,Bet won,,,2026-01-18 13:24:43,import
+2025-09-07,bet_placed,David Bates,-1.00,Bet placed,17,,2026-01-18 13:24:43,import
+2025-09-07,bet_placed,David Bates,-4.80,Bet placed,18,,2026-01-18 13:24:43,import
+2025-09-08,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-08,contribution,Thomas Levin,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-08,contribution,Ben Alston,25.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-08,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-11,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-13,contribution,David Ashcroft,10.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-13,bet_placed,Andy Thacker,-10.00,Bet placed,19,,2026-01-18 13:24:43,import
+2025-09-13,contribution,Craig Pemberton,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-13,bet_placed,Ben Alston,-10.00,Bet placed,20,,2026-01-18 13:24:43,import
+2025-09-13,bet_placed,Ben Alston,-10.00,Bet placed,21,,2026-01-18 13:24:43,import
+2025-09-13,bet_placed,Ste Mellor,-30.00,Bet placed,22,,2026-01-18 13:24:43,import
+2025-09-13,winnings,Ste Mellor,2.33,Bet won,,,2026-01-18 13:24:43,import
+2025-09-13,winnings,Ste Mellor,4.76,Bet won,,,2026-01-18 13:24:43,import
+2025-09-13,winnings,Andy Thacker,28.99,Bet won,,,2026-01-18 13:24:43,import
+2025-09-14,bet_placed,Andy Thacker,-10.00,Bet placed,23,,2026-01-18 13:24:43,import
+2025-09-14,bet_placed,Andy Thacker,-10.00,Bet placed,24,,2026-01-18 13:24:43,import
+2025-09-14,winnings,Andy Thacker,33.00,Bet won,,,2026-01-18 13:24:43,import
+2025-09-14,winnings,Andy Thacker,45.74,Bet won,,,2026-01-18 13:24:43,import
+2025-09-15,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-15,contribution,James McNamee,25.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-15,bet_placed,David Ashcroft,-10.00,Bet placed,25,,2026-01-18 13:24:43,import
+2025-09-16,bet_placed,David Ashcroft,-5.00,Bet placed,26,,2026-01-18 13:24:43,import
+2025-09-19,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-20,bet_placed,Thomas Levin,-10.00,Bet placed,27,,2026-01-18 13:24:43,import
+2025-09-20,bet_placed,Thomas Levin,-10.00,Bet placed,28,,2026-01-18 13:24:43,import
+2025-09-20,bet_placed,Thomas Levin,-10.00,Bet placed,29,,2026-01-18 13:24:43,import
+2025-09-20,bet_placed,David Ashcroft,-10.00,Bet placed,30,,2026-01-18 13:24:43,import
+2025-09-20,bet_placed,David Ashcroft,-5.00,Bet placed,31,,2026-01-18 13:24:43,import
+2025-09-20,winnings,David Ashcroft,55.00,Bet won,,,2026-01-18 13:24:43,import
+2025-09-22,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-22,contribution,David Ashcroft,10.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-27,bet_placed,Shane Thomas,-10.00,Bet placed,32,,2026-01-18 13:24:43,import
+2025-09-27,bet_placed,Shane Thomas,-20.00,Bet placed,33,,2026-01-18 13:24:43,import
+2025-09-27,bet_placed,Craig Pemberton,-5.00,Bet placed,34,,2026-01-18 13:24:43,import
+2025-09-27,bet_placed,Craig Pemberton,-10.00,Bet placed,35,,2026-01-18 13:24:43,import
+2025-09-27,winnings,Shane Thomas,206.41,Bet won,,,2026-01-18 13:24:43,import
+2025-09-28,bet_placed,Craig Pemberton,-15.00,Bet placed,36,,2026-01-18 13:24:43,import
+2025-09-29,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-29,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-29,contribution,Thomas Levin,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-09-30,bet_placed,James McNamee,-10.00,Bet placed,37,,2026-01-18 13:24:43,import
+2025-09-30,contribution,David Bates,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-01,bet_placed,James McNamee,-10.00,Bet placed,38,,2026-01-18 13:24:43,import
+2025-10-03,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-04,bet_placed,James McNamee,-10.00,Bet placed,39,,2026-01-18 13:24:43,import
+2025-10-06,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-10,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-11,bet_placed,Chris Thacker,-30.00,Bet placed,40,,2026-01-18 13:24:43,import
+2025-10-11,bet_placed,Gary Benyon,-30.00,Bet placed,41,,2026-01-18 13:24:43,import
+2025-10-13,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-13,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-16,contribution,Craig Pemberton,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-17,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-22,contribution,David Ashcroft,20.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-22,contribution,James McNamee,25.00,Contribution,,,2026-01-18 13:24:43,import
+2025-10-22,bet_placed,Colin Turner,-10.00,Bet placed,42,,2026-01-18 13:24:43,import
+2025-10-22,bet_placed,Colin Turner,-10.00,Bet placed,43,,2026-01-18 13:24:43,import
+2025-10-22,bet_placed,David Bates,-5.00,Bet placed,44,,2026-01-18 13:24:43,import
+2025-10-22,bet_placed,David Bates,-10.00,Bet placed,45,,2026-01-18 13:24:43,import
+2025-10-22,bet_placed,Colin Turner,-10.00,Bet placed,46,,2026-01-18 13:24:43,import
+2025-10-22,winnings,Colin Turner,20.00,Bet won,,,2026-01-18 13:24:43,import
+2025-10-25,bet_placed,Ben Alston,-10.00,Bet placed,47,,2026-01-18 13:24:44,import
+2025-10-25,bet_placed,Ben Alston,-10.00,Bet placed,48,,2026-01-18 13:24:44,import
+2025-10-25,bet_placed,Ste Mellor,-30.00,Bet placed,49,,2026-01-18 13:24:44,import
+2025-10-25,contribution,Ben Alston,40.00,Contribution,,,2026-01-18 13:24:44,import
+2025-10-25,contribution,Andy Thacker,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-10-25,contribution,Ste Mellor,50.00,Contribution,,,2026-01-18 13:24:44,import
+2025-10-25,winnings,Colin Turner,25.38,Bet won,,,2026-01-18 13:24:44,import
+2025-10-25,winnings,Ste Mellor,4.61,Bet won,,,2026-01-18 13:24:44,import
+2025-10-25,winnings,Ste Mellor,6.88,Bet won,,,2026-01-18 13:24:44,import
+2025-10-25,bet_placed,David Bates,-14.80,Bet placed,50,,2026-01-18 13:24:44,import
+2025-10-26,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-10-27,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-10-31,contribution,David Bates,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-01,bet_placed,David Ashcroft,-20.00,Bet placed,51,,2026-01-18 13:24:44,import
+2025-11-01,contribution,Chris Thacker,30.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-01,bet_placed,Thomas Levin,-15.00,Bet placed,52,,2026-01-18 13:24:44,import
+2025-11-01,bet_placed,Thomas Levin,-15.00,Bet placed,53,,2026-01-18 13:24:44,import
+2025-11-01,bet_placed,Andy Thacker,-15.00,Bet placed,54,,2026-01-18 13:24:44,import
+2025-11-01,bet_placed,David Ashcroft,-10.00,Bet placed,55,,2026-01-18 13:24:44,import
+2025-11-01,winnings,David Ashcroft,50.00,Bet won,,,2026-01-18 13:24:44,import
+2025-11-01,winnings,Andy Thacker,192.24,Bet won,,,2026-01-18 13:24:44,import
+2025-11-02,bet_placed,Andy Thacker,-15.00,Bet placed,56,,2026-01-18 13:24:44,import
+2025-11-02,winnings,Andy Thacker,24.76,Bet won,,,2026-01-18 13:24:44,import
+2025-11-03,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-03,contribution,Thomas Levin,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-07,contribution,Shane Thomas,10.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-08,bet_placed,Shane Thomas,-10.00,Bet placed,57,,2026-01-18 13:24:44,import
+2025-11-08,bet_placed,Shane Thomas,-20.00,Bet placed,58,,2026-01-18 13:24:44,import
+2025-11-08,bet_placed,Craig Pemberton,-10.00,Bet placed,59,,2026-01-18 13:24:44,import
+2025-11-08,bet_placed,Craig Pemberton,-10.00,Bet placed,60,,2026-01-18 13:24:44,import
+2025-11-08,winnings,Craig Pemberton,20.00,Bet won,,,2026-01-18 13:24:44,import
+2025-11-09,winnings,Shane Thomas,129.38,Bet won,,,2026-01-18 13:24:44,import
+2025-11-09,bet_placed,Craig Pemberton,-10.00,Bet placed,61,,2026-01-18 13:24:44,import
+2025-11-09,bet_placed,Ben Alston,-10.00,Bet placed,62,,2026-01-18 13:24:44,import
+2025-11-10,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-14,contribution,David Ashcroft,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-14,contribution,Shane Thomas,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-15,payout,Shane Thomas,-50.00,Payout to player,,,2026-01-18 13:24:44,import
+2025-11-17,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-21,bet_placed,Gary Benyon,-30.00,Bet placed,63,,2026-01-18 13:24:44,import
+2025-11-21,contribution,Shane Thomas,25.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-22,bet_placed,Chris Thacker,-20.00,Bet placed,64,,2026-01-18 13:24:44,import
+2025-11-22,bet_placed,Chris Thacker,-10.00,Bet placed,65,,2026-01-18 13:24:44,import
+2025-11-22,bet_placed,James McNamee,-10.00,Bet placed,66,,2026-01-18 13:24:44,import
+2025-11-22,winnings,Chris Thacker,42.00,Bet won,,,2026-01-18 13:24:44,import
+2025-11-22,winnings,Chris Thacker,48.13,Bet won,,,2026-01-18 13:24:44,import
+2025-11-23,bet_placed,James McNamee,-20.00,Bet placed,67,,2026-01-18 13:24:44,import
+2025-11-24,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-26,bet_placed,Colin Turner,-10.00,Bet placed,68,,2026-01-18 13:24:44,import
+2025-11-26,bet_placed,David Bates,-10.00,Bet placed,69,,2026-01-18 13:24:44,import
+2025-11-26,bet_placed,David Bates,-3.00,Bet placed,70,,2026-01-18 13:24:44,import
+2025-11-26,contribution,James McNamee,25.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-28,contribution,David Bates,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-28,contribution,Shane Thomas,25.00,Contribution,,,2026-01-18 13:24:44,import
+2025-11-29,bet_placed,David Bates,-10.00,Bet placed,71,,2026-01-18 13:24:44,import
+2025-11-30,bet_placed,David Bates,-5.00,Bet placed,72,,2026-01-18 13:24:44,import
+2025-11-30,bet_placed,Colin Turner,-10.00,Bet placed,73,,2026-01-18 13:24:44,import
+2025-12-01,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-02,bet_placed,Colin Turner,-10.00,Bet placed,74,,2026-01-18 13:24:44,import
+2025-12-03,contribution,Thomas Levin,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-05,contribution,Shane Thomas,10.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-06,bet_placed,Ste Mellor,-26.00,Bet placed,75,,2026-01-18 13:24:44,import
+2025-12-06,bet_placed,David Bates,-2.00,Bet placed,76,,2026-01-18 13:24:44,import
+2025-12-06,bet_placed,Ben Alston,-10.00,Bet placed,77,,2026-01-18 13:24:44,import
+2025-12-06,winnings,Ste Mellor,22.79,Bet won,,,2026-01-18 13:24:44,import
+2025-12-07,contribution,Chris Thacker,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-08,contribution,Andy Thacker,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-08,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-12,contribution,Shane Thomas,10.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-12,contribution,Ben Alston,40.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-12,bet_placed,David Ashcroft,-30.00,Bet placed,78,,2026-01-18 13:24:44,import
+2025-12-12,bet_placed,Ste Mellor,-4.00,Bet placed,79,,2026-01-18 13:24:44,import
+2025-12-12,contribution,Shane Thomas,10.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-14,bet_placed,Ben Alston,-20.00,Bet placed,80,,2026-01-18 13:24:44,import
+2025-12-14,winnings,Ben Alston,68.25,Bet won,,,2026-01-18 13:24:44,import
+2025-12-15,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-18,bet_placed,Shane Thomas,-10.00,Bet placed,81,,2026-01-18 13:24:44,import
+2025-12-19,contribution,David Bates,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-19,payout,Shane Thomas,-90.00,Payout to player,,,2026-01-18 13:24:44,import
+2025-12-19,contribution,Ste Mellor,55.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-19,contribution,Andy Thacker,30.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-20,bet_placed,Andy Thacker,-10.00,Bet placed,82,,2026-01-18 13:24:44,import
+2025-12-20,bet_placed,Thomas Levin,-10.00,Bet placed,83,,2026-01-18 13:24:44,import
+2025-12-20,bet_placed,Thomas Levin,-10.00,Bet placed,84,,2026-01-18 13:24:44,import
+2025-12-20,bet_placed,Thomas Levin,-10.00,Bet placed,85,,2026-01-18 13:24:44,import
+2025-12-21,bet_placed,Shane Thomas,-20.00,Bet placed,86,,2026-01-18 13:24:44,import
+2025-12-21,winnings,Shane Thomas,214.28,Bet won,,,2026-01-18 13:24:44,import
+2025-12-21,winnings,Thomas Levin,56.50,Bet won,,,2026-01-18 13:24:44,import
+2025-12-21,bet_placed,Craig Pemberton,-10.00,Bet placed,87,,2026-01-18 13:24:44,import
+2025-12-22,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-23,contribution,Shane Thomas,90.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-24,contribution,Shane Thomas,10.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-26,contribution,Shane Thomas,10.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-27,bet_placed,Craig Pemberton,-20.00,Bet placed,88,,2026-01-18 13:24:44,import
+2025-12-27,winnings,Craig Pemberton,202.91,Bet won,,,2026-01-18 13:24:44,import
+2025-12-27,bet_placed,Andy Thacker,-10.00,Bet placed,89,,2026-01-18 13:24:44,import
+2025-12-27,contribution,David Ashcroft,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-27,bet_placed,Gary Benyon,-30.00,Bet placed,90,,2026-01-18 13:24:44,import
+2025-12-27,contribution,Thomas Levin,20.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-27,contribution,Craig Pemberton,40.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-29,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-29,bet_placed,James McNamee,-11.00,Bet placed,91,,2026-01-18 13:24:44,import
+2025-12-29,bet_placed,Andy Thacker,-10.00,Bet placed,92,,2026-01-18 13:24:44,import
+2025-12-29,contribution,James McNamee,25.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-29,contribution,Gary Benyon,80.00,Contribution,,,2026-01-18 13:24:44,import
+2025-12-29,bet_placed,Chris Thacker,-30.00,Bet placed,93,,2026-01-18 13:24:44,import
+2025-12-29,bet_placed,Colin Turner,-10.00,Bet placed,94,,2026-01-18 13:24:44,import
+2025-12-30,bet_placed,James McNamee,-15.00,Bet placed,95,,2026-01-18 13:24:44,import
+2025-12-30,bet_placed,James McNamee,-4.00,Bet placed,96,,2026-01-18 13:24:44,import
+2025-12-30,bet_placed,Colin Turner,-20.00,Bet placed,97,,2026-01-18 13:24:44,import
+2026-01-03,payout,Shane Thomas,-30.00,Payout to player,,,2026-01-18 13:24:44,import
+2026-01-03,contribution,Shane Thomas,30.00,Contribution,,,2026-01-18 13:24:44,import
+2026-01-05,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2026-01-13,contribution,Colin Turner,5.00,Contribution,,,2026-01-18 13:24:44,import
+2026-01-16,contribution,Shane Thomas,10.00,Weekly contribution,,,2026-01-18 13:36:07,
+2026-01-17,bet_placed,David Bates,-10.00,Bet placed,98,,2026-01-18 13:38:46,
+2026-01-17,bet_placed,David Bates,-5.00,Bet placed,99,,2026-01-18 13:40:23,
+2026-01-17,bet_placed,Ste Mellor,-30.00,Bet placed,100,,2026-01-18 13:43:04,
+2026-01-17,bet_placed,Andy Thacker,-10.00,Bet placed,101,,2026-01-18 13:43:54,
+2026-01-17,bet_placed,David Bates,-3.00,Bet placed,102,,2026-01-18 13:44:56,
+2026-01-17,bet_placed,Ben Alston,-10.00,Bet placed,103,,2026-01-18 13:54:43,
+2026-01-18,bet_placed,David Bates,-2.00,Bet placed,104,,2026-01-18 19:22:57,
+2026-01-18,bet_placed,Andy Thacker,-10.00,Bet placed,105,,2026-01-18 19:43:28,
+2026-01-18,bet_placed,Andy Thacker,-10.00,Bet placed,106,,2026-01-18 19:44:46,
+2026-01-18,bet_placed,David Bates,-5.00,Bet placed,107,,2026-01-19 08:32:10,
+2026-01-18,bet_placed,David Bates,-5.00,Bet placed,108,,2026-01-19 08:33:04,
+2026-01-19,contribution,Colin Turner,5.00,Weekly contribution,,,2026-01-19 08:26:11,
+2026-01-20,bet_placed,Thomas Levin,-10.00,Bet placed,109,,2026-01-20 08:13:41,
+2026-01-23,contribution,Chris Thacker,30.00,Weekly contribution,,,2026-01-23 09:00:19,
+2026-01-23,contribution,Thomas Levin,20.00,Weekly contribution,,,2026-01-23 21:29:15,
+2026-01-24,bet_placed,Thomas Levin,-10.00,Bet placed,110,,2026-01-24 09:36:18,
+2026-01-24,bet_placed,Thomas Levin,-10.00,Bet placed,111,,2026-01-24 09:45:56,
+2026-01-24,bet_placed,David Ashcroft,-20.00,Bet placed,112,,2026-01-24 09:56:55,
+2026-01-24,bet_placed,David Ashcroft,-10.00,Bet placed,113,,2026-01-24 10:00:31,
+2026-01-25,bet_placed,Ben Alston,-20.00,Bet placed,546,,2026-01-25 15:38:29,
+2026-01-25,winnings,Thomas Levin,94.14,Bet won,111,,2026-01-25 15:45:40,
+2026-01-26,contribution,Colin Turner,5.00,Weekly contribution,,,2026-01-26 07:14:00,
+2026-01-28,bet_placed,Craig Pemberton,-10.00,Bet placed,1214,,2026-01-28 19:10:58,
+2026-01-30,bet_placed,Shane Thomas,-10.00,Bet placed,1215,,2026-01-30 08:46:20,
+2026-01-30,bet_placed,Shane Thomas,-20.00,Bet placed,1216,,2026-01-30 08:48:17,
+2026-01-30,contribution,David Bates,20.00,Weekly contribution,,,2026-01-30 17:16:13,
+2026-01-31,bet_placed,Craig Pemberton,-10.00,Bet placed,1217,,2026-01-31 14:14:01,
+2026-01-31,bet_placed,Craig Pemberton,-10.00,Bet placed,1218,,2026-02-01 08:07:16,
+2026-02-02,contribution,Colin Turner,5.00,Weekly contribution,,,2026-02-02 08:11:17,
+2026-02-02,contribution,Ben Alston,40.00,Weekly contribution,,,2026-02-02 08:31:33,
+2026-02-02,contribution,David Ashcroft,30.00,Weekly contribution,,,2026-02-02 08:31:50,
+2026-02-02,contribution,Andy Thacker,20.00,Weekly contribution,,,2026-02-02 08:32:03,
+2026-02-02,contribution,James McNamee,25.00,Weekly contribution,,,2026-02-02 10:43:23,
+2026-02-07,bet_placed,Gary Benyon,-30.00,Bet placed,1220,,2026-02-07 10:41:18,
+2026-02-07,bet_placed,James McNamee,-15.00,Bet placed,1221,,2026-02-07 13:32:35,
+2026-02-07,winnings,Craig Pemberton,21.02,Bet won,1219,,2026-02-07 17:13:52,
+2026-02-08,bet_placed,James McNamee,-10.00,Bet placed,1222,,2026-02-08 11:53:25,
+2026-02-08,bet_placed,James McNamee,-5.00,Bet placed,1223,,2026-02-08 11:58:05,
+2026-02-09,contribution,Colin Turner,5.00,Weekly contribution,,,2026-02-09 09:01:58,
+2026-02-10,contribution,Chris Thacker,30.00,Weekly contribution,,,2026-02-10 09:30:09,
+2026-02-10,bet_placed,Colin Turner,-20.00,Bet placed,1224,,2026-02-10 13:05:42,
+2026-02-10,bet_placed,Colin Turner,-10.00,Bet placed,1225,,2026-02-10 13:14:20,
+2026-02-13,contribution,Shane Thomas,5.00,Weekly contribution,,,2026-02-13 07:17:00,
+2026-02-13,contribution,Ste Mellor,35.00,Weekly contribution,,,2026-02-13 07:28:33,
+2026-02-14,bet_placed,Chris Thacker,-15.00,Bet placed,1226,,2026-02-14 10:22:27,
+2026-02-14,bet_placed,Chris Thacker,-15.00,Bet placed,1227,,2026-02-14 10:24:21,
+2026-02-16,contribution,Colin Turner,5.00,Weekly contribution,,,2026-02-16 08:26:20,
+2026-02-16,contribution,Thomas Levin,20.00,Weekly contribution,,,2026-02-28 14:03:33,
+2026-02-20,contribution,Shane Thomas,5.00,Weekly contribution,,,2026-02-28 12:15:43,
+2026-02-20,payout,Shane Thomas,-60.00,Payout to player,,,2026-02-28 12:16:04,
+2026-02-20,contribution,Craig Pemberton,40.00,Weekly contribution,,,2026-02-28 12:50:57,
+2026-02-21,bet_placed,David Bates,-5.00,Bet placed,1233,,2026-02-28 12:38:44,
+2026-02-21,bet_placed,David Bates,-10.00,Bet placed,1234,,2026-02-28 12:40:04,
+2026-02-22,payout,Shane Thomas,-75.00,Payout to player,,,2026-02-28 12:16:29,
+2026-02-22,bet_placed,David Bates,-3.00,Bet placed,1232,,2026-02-28 12:30:21,
+2026-02-22,bet_placed,David Bates,-3.00,Bet placed,1235,,2026-02-28 12:42:57,
+2026-02-22,bet_placed,David Bates,-5.00,Bet placed,1236,,2026-02-28 12:44:59,
+2026-02-22,bet_placed,Ben Alston,-5.00,Bet placed,1237,,2026-02-28 12:46:47,
+2026-02-23,contribution,David Ashcroft,20.00,Weekly contribution,,,2026-02-28 12:18:07,
+2026-02-23,bet_placed,David Bates,-4.00,Bet placed,1231,,2026-02-28 12:26:50,
+2026-02-23,contribution,Colin Turner,5.00,Weekly contribution,,,2026-02-28 12:51:21,
+2026-02-27,contribution,Shane Thomas,10.00,Weekly contribution,,,2026-02-28 12:17:00,
+2026-02-28,contribution,David Bates,20.00,Weekly contribution,,,2026-02-28 12:17:28,
+2026-02-28,bet_placed,Ben Alston,-25.00,Bet placed,1228,,2026-02-28 12:21:03,
+2026-02-28,bet_placed,Ste Mellor,-26.00,Bet placed,1229,,2026-02-28 12:22:16,
+2026-02-28,bet_placed,Andy Thacker,-15.00,Bet placed,1230,,2026-02-28 12:23:24,
+2026-02-28,bet_placed,Ste Mellor,-4.00,Bet placed,1238,,2026-02-28 13:58:58,
+2026-03-01,bet_placed,Andy Thacker,-10.00,Bet placed,1239,,2026-03-01 08:42:02,
+2026-03-01,bet_placed,Andy Thacker,-5.00,Bet placed,1240,,2026-03-01 13:09:42,
+2026-03-01,winnings,Andy Thacker,44.85,Bet won,1239,,2026-03-01 18:32:18,
+2026-03-01,contribution,Andy Thacker,20.00,Weekly contribution,,,2026-03-01 20:09:54,
+2026-03-02,contribution,Colin Turner,5.00,Weekly contribution,,,2026-03-02 08:01:30,
+2026-03-02,bet_placed,David Ashcroft,-11.00,Bet placed,1241,,2026-03-02 21:07:02,
+2026-03-03,bet_placed,Thomas Levin,-10.00,Bet placed,1242,,2026-03-03 17:24:04,
+2026-03-04,bet_placed,David Ashcroft,-19.00,Bet placed,1243,,2026-03-05 08:17:10,
+2026-03-08,bet_placed,Thomas Levin,-20.00,Bet placed,1244,,2026-03-08 08:38:05,
+2026-03-08,contribution,Shane Thomas,100.00,Weekly contribution,,,2026-03-08 16:52:53,
+2026-03-09,contribution,Colin Turner,5.00,Weekly contribution,,,2026-03-09 08:29:30,
+2026-03-09,bet_placed,Gary Benyon,-30.00,Bet placed,1245,,2026-03-09 11:55:13,
+2026-03-10,bet_placed,Craig Pemberton,-5.00,Bet placed,1246,,2026-03-10 08:44:48,
+2026-03-10,bet_placed,Shane Thomas,-10.00,Bet placed,1247,,2026-03-10 09:08:58,
+2026-03-10,bet_placed,Shane Thomas,-10.00,Bet placed,1248,,2026-03-10 09:11:37,
+2026-03-10,bet_placed,Shane Thomas,-10.00,Bet placed,1249,,2026-03-10 09:13:50,
+2026-03-10,winnings,Shane Thomas,100.63,Bet won,1247,,2026-03-10 23:10:16,
+2026-03-13,contribution,Shane Thomas,10.00,Weekly contribution,,,2026-03-13 07:37:59,
+2026-03-14,bet_placed,Craig Pemberton,-10.00,Bet placed,1250,,2026-03-14 07:35:32,
+2026-03-14,payout,Shane Thomas,-100.00,Payout to player,,,2026-03-14 08:56:45,
+2026-03-15,contribution,Shane Thomas,100.00,Weekly contribution,,,2026-03-15 13:47:57,
+2026-03-15,bet_placed,Craig Pemberton,-10.00,Bet placed,1251,,2026-03-15 14:25:12,
+2026-03-16,contribution,Colin Turner,5.00,Weekly contribution,,,2026-03-16 10:01:27,
+2026-03-17,bet_placed,Craig Pemberton,-5.00,Bet placed,1252,,2026-03-17 12:14:39,
+2026-03-17,winnings,Craig Pemberton,99.69,Bet won,1252,,2026-03-17 21:55:52,
+2026-03-20,contribution,Shane Thomas,10.00,Weekly contribution,,,2026-03-20 08:15:45,
+2026-03-21,bet_placed,James McNamee,-10.00,Bet placed,1253,,2026-03-21 11:38:19,
+2026-03-21,winnings,James McNamee,52.97,Bet won,1253,,2026-03-21 16:56:19,
+2026-03-21,payout,Shane Thomas,-50.00,Payout to player,,,2026-03-21 19:29:16,
+2026-03-23,contribution,Colin Turner,5.00,Weekly contribution,,,2026-03-23 20:00:51,
+2026-03-23,contribution,Thomas Levin,20.00,Weekly contribution,,,2026-03-23 20:39:13,
+2026-03-25,payout,Shane Thomas,-80.00,Payout to player,,,2026-03-25 14:29:36,
+2026-03-27,contribution,Shane Thomas,30.00,Weekly contribution,,,2026-03-27 09:24:26,
+2026-03-27,contribution,Gary Benyon,50.00,Weekly contribution,,,2026-03-27 11:21:12,
+2026-03-28,bet_placed,Chris Thacker,-30.00,Bet placed,1254,,2026-03-28 11:40:10,
