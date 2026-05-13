@@ -47,6 +47,9 @@ dist/
 build/
 *.egg-info/
 
+# Bank statements
+bank statements/
+
 # Secrets
 *.pem
 *.key

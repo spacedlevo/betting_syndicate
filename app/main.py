@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
 from app.database import init_db
-from app.routes import dashboard, players, bets, ledger_routes, seasons, import_routes, sports
+from app.routes import dashboard, players, bets, ledger_routes, seasons, import_routes, sports, audit
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -36,6 +36,7 @@ app.include_router(bets.router, prefix="/bets", tags=["Bets"])
 app.include_router(sports.router, prefix="/sports", tags=["Sports"])
 app.include_router(ledger_routes.router, prefix="/ledger", tags=["Ledger"])
 app.include_router(import_routes.router, prefix="/import", tags=["Import"])
+app.include_router(audit.router, prefix="/audit", tags=["Audit"])
 
 
 @app.on_event("startup")

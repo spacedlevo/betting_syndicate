@@ -55,6 +55,7 @@ class Player(Base):
     placed_bets = relationship("Bet", back_populates="placed_by_player")
     ledger_entries = relationship("LedgerEntry", back_populates="player")
     week_assignments = relationship("WeekAssignment", back_populates="player")
+    bank_transactions = relationship("PlayerBankTransaction", back_populates="player")
 
 
 class PlayerSeason(Base):
@@ -237,4 +238,52 @@ class Bet(Base):
             name='ck_bet_status'
         ),
         CheckConstraint('stake > 0', name='ck_positive_stake'),
+    )
+
+
+class BankTransaction(Base):
+    """
+    Raw transaction imported from a bank statement (Monzo, TSB, or PayPal).
+    Only syndicate-member transactions are stored here.
+    """
+    __tablename__ = "bank_transactions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    source = Column(String(20), nullable=False)        # 'monzo', 'tsb', 'paypal'
+    external_id = Column(String(255), nullable=False)  # transaction ID or synthetic key
+    date = Column(Date, nullable=False)
+    name = Column(String(255), nullable=False)          # name/description from source
+    amount = Column(Numeric(10, 2), nullable=False)    # positive = in, negative = out
+    currency = Column(String(10), nullable=False, default='GBP')
+    transaction_type = Column(String(100), nullable=True)
+    source_file = Column(String(255), nullable=False)
+    is_disregarded = Column(Boolean, default=False, nullable=False, server_default='0')
+    ledger_entry_id = Column(Integer, ForeignKey("ledger.id"), nullable=True)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+
+    # Relationships
+    player_links = relationship("PlayerBankTransaction", back_populates="bank_transaction")
+    ledger_entry = relationship("LedgerEntry")
+
+    __table_args__ = (
+        UniqueConstraint('source', 'external_id', name='uq_bank_transaction'),
+    )
+
+
+class PlayerBankTransaction(Base):
+    """
+    Dimensions table linking a bank transaction to a syndicate player.
+    """
+    __tablename__ = "player_bank_transactions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    bank_transaction_id = Column(Integer, ForeignKey("bank_transactions.id"), nullable=False)
+    player_id = Column(Integer, ForeignKey("players.id"), nullable=False)
+
+    # Relationships
+    bank_transaction = relationship("BankTransaction", back_populates="player_links")
+    player = relationship("Player", back_populates="bank_transactions")
+
+    __table_args__ = (
+        UniqueConstraint('bank_transaction_id', 'player_id', name='uq_player_bank_transaction'),
     )

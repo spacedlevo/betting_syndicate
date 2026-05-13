@@ -4,7 +4,7 @@ Database connection and session management for the betting syndicate.
 This module sets up the SQLite database connection using SQLAlchemy.
 """
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -60,4 +60,17 @@ def init_db():
 
     # Create all tables
     Base.metadata.create_all(bind=engine)
+
+    # Migrate: add audit columns to bank_transactions if missing
+    with engine.connect() as conn:
+        for col_sql in [
+            "ALTER TABLE bank_transactions ADD COLUMN is_disregarded BOOLEAN NOT NULL DEFAULT 0",
+            "ALTER TABLE bank_transactions ADD COLUMN ledger_entry_id INTEGER REFERENCES ledger(id)",
+        ]:
+            try:
+                conn.execute(text(col_sql))
+                conn.commit()
+            except Exception:
+                pass  # column already exists
+
     print(f"Database initialized at {DATABASE_PATH}")
