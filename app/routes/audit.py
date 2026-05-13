@@ -158,6 +158,22 @@ async def audit_page(
     bank_in = sum((r["txn"].amount for r in audit_rows if r["txn"].amount > 0 and r["status"] != "disregarded"), 0)
     bank_out = sum((r["txn"].amount for r in audit_rows if r["txn"].amount < 0 and r["status"] != "disregarded"), 0)
 
+    # Thomas Levin has no bank statements to import; add his ledger figures directly
+    # to the bank totals so the cards balance across all players.
+    admin = db.query(Player).filter(Player.name == "Thomas Levin").first()
+    if admin and (player_id is None or player_id == admin.id):
+        admin_q = db.query(LedgerEntry).filter(
+            LedgerEntry.player_id == admin.id,
+            LedgerEntry.entry_type.in_(["contribution", "payout"]),
+        )
+        if season:
+            admin_q = admin_q.filter(LedgerEntry.season_id == season.id)
+        for e in admin_q.all():
+            if e.amount > 0:
+                bank_in += e.amount
+            else:
+                bank_out += e.amount
+
     # Stats computed before status filter
     stats = {
         "ledger_contributions": ledger_contributions,
