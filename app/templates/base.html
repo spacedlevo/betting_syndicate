@@ -56,6 +56,9 @@
     </nav>
 
     <main class="container">
+        {% if request.state.flash %}
+        <div class="alert alert-{{ request.state.flash.type }} flash-message" role="alert">{{ request.state.flash.message }}</div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 

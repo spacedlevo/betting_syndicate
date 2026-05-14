@@ -5,9 +5,11 @@ FastAPI main application entry point for the Betting Syndicate Manager.
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
 from pathlib import Path
 
 from app.database import init_db
+from app.flash import FlashMiddleware
 from app.routes import dashboard, players, bets, ledger_routes, seasons, import_routes, sports, audit
 
 # Initialize FastAPI app
@@ -16,6 +18,9 @@ app = FastAPI(
     description="A ledger-based betting syndicate management system",
     version="1.0.0"
 )
+
+app.add_middleware(FlashMiddleware)
+app.add_middleware(SessionMiddleware, secret_key="bs-session-secret-key-2025", https_only=False)
 
 # Get the app directory path
 APP_DIR = Path(__file__).parent

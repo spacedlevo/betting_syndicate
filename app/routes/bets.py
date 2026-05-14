@@ -15,6 +15,7 @@ from decimal import Decimal
 from app.database import get_db
 from app.models import Bet, Player, PlayerSeason, Season, Week, LedgerEntry, Sport
 from app import ledger
+from app.flash import set_flash
 
 
 def is_season_frozen(season: Season) -> bool:
@@ -55,6 +56,7 @@ async def save_screenshot(file: UploadFile) -> str:
 async def list_bets(
     request: Request,
     status: str = None,
+    page: int = 1,
     db: Session = Depends(get_db)
 ):
     """List all bets with optional status filter."""
@@ -65,13 +67,18 @@ async def list_bets(
     if status:
         query = query.filter(Bet.status == status)
 
-    bets = query.limit(100).all()
+    per_page = 50
+    total = query.count()
+    bets = query.offset((page - 1) * per_page).limit(per_page).all()
 
     return templates.TemplateResponse("bets/list.html", {
         "request": request,
         "bets": bets,
         "season": season,
-        "current_status": status
+        "current_status": status,
+        "page": page,
+        "total": total,
+        "per_page": per_page,
     })
 
 
@@ -161,6 +168,7 @@ async def create_bet(
     else:
         db.commit()
 
+    set_flash(request, "Bet placed successfully.")
     return RedirectResponse(url="/bets", status_code=303)
 
 
@@ -243,6 +251,7 @@ async def update_result(
     # For 'lost', no ledger entry needed - money already left via bet_placed
 
     db.commit()
+    set_flash(request, f"Bet marked as {status}.")
     return RedirectResponse(url="/bets", status_code=303)
 
 

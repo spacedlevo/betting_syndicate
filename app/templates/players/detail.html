@@ -58,7 +58,7 @@
                 <tr>
                     <td>{{ entry.entry_date.strftime('%d/%m/%Y') }}</td>
                     <td>
-                        <span class="badge badge-{% if entry.entry_type == 'contribution' %}won{% elif entry.entry_type == 'bet_placed' %}pending{% elif entry.entry_type == 'winnings_share' %}won{% elif entry.entry_type == 'payout' %}lost{% else %}void{% endif %}">
+                        <span class="badge badge-{% if entry.entry_type == 'contribution' %}contribution{% elif entry.entry_type == 'bet_placed' %}bet-placed{% elif entry.entry_type in ('winnings', 'winnings_share') %}winnings{% elif entry.entry_type == 'payout' %}payout{% else %}void{% endif %}">
                             {{ entry.entry_type.replace('_', ' ').title() }}
                         </span>
                     </td>

@@ -41,7 +41,8 @@
                         <a href="/seasons/{{ data.season.id }}/edit" class="btn btn-sm btn-outline">Edit</a>
                         {% if not data.season.is_active %}
                         <form method="post" action="/seasons/{{ data.season.id }}/activate" style="display: inline;">
-                            <button type="submit" class="btn btn-sm btn-success">Activate</button>
+                            <button type="submit" class="btn btn-sm btn-success"
+                                onclick="return confirm('Activate {{ data.season.name }}? This will deactivate the current season.')">Activate</button>
                         </form>
                         {% endif %}
                     </td>

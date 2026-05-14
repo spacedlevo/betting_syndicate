@@ -17,6 +17,7 @@ from decimal import Decimal
 from app.database import get_db
 from app.models import LedgerEntry, Player, PlayerSeason, Season
 from app import ledger
+from app.flash import set_flash
 
 router = APIRouter()
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
@@ -142,6 +143,7 @@ async def add_contribution(
             entry_date=entry_date
         )
 
+    set_flash(request, f"Contributions added for {len(player_ids)} player(s).")
     return RedirectResponse(url="/", status_code=303)
 
 
@@ -189,6 +191,7 @@ async def add_payout(
         description=description
     )
 
+    set_flash(request, f"Payout of £{amount:.2f} recorded.")
     return RedirectResponse(url="/", status_code=303)
 
 

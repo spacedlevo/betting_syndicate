@@ -14,7 +14,7 @@
 {% else %}
 
 {% if is_frozen %}
-<div class="alert alert-danger alert-frozen">
+<div class="alert alert-error alert-frozen">
     <span class="alert-icon">&#10052;</span>
     <div class="alert-content">
         <strong>Season Frozen</strong><br>
@@ -222,6 +222,9 @@
 {% block extra_scripts %}
 <script>
     const ctx = document.getElementById('winningsChart').getContext('2d');
+    const cssVars = getComputedStyle(document.documentElement);
+    const textMuted = cssVars.getPropertyValue('--text-muted').trim();
+    const borderColor = cssVars.getPropertyValue('--border').trim();
 
     // Player data from backend
     const playerNames = [{% for stat in player_stats %}'{{ stat.player_name }}'{% if not loop.last %}, {% endif %}{% endfor %}];
@@ -258,7 +261,8 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: { color: textMuted }
                 },
                 tooltip: {
                     callbacks: {
@@ -271,14 +275,18 @@
             scales: {
                 y: {
                     beginAtZero: true,
+                    grid: { color: borderColor },
                     ticks: {
+                        color: textMuted,
                         callback: function(value) {
                             return '£' + value;
                         }
                     }
                 },
                 x: {
+                    grid: { color: borderColor },
                     ticks: {
+                        color: textMuted,
                         maxRotation: 45,
                         minRotation: 45
                     }

@@ -23,11 +23,11 @@
             <thead>
                 <tr>
                     <th>Player</th>
-                    <th class="text-center">In Season</th>
-                    <th class="text-right">Balance</th>
-                    <th class="text-right">Bets Placed</th>
-                    <th class="text-right">Bet Balance</th>
-                    <th class="text-right">Won</th>
+                    <th class="text-center hide-mobile">In Season</th>
+                    <th class="text-right hide-mobile">Balance</th>
+                    <th class="text-right hide-mobile">Bets Placed</th>
+                    <th class="text-right hide-mobile">Bet Balance</th>
+                    <th class="text-right hide-mobile">Won</th>
                     <th class="text-right">Profit/Loss</th>
                     <th class="text-right">Payout</th>
                     <th class="text-center">Actions</th>
@@ -39,19 +39,19 @@
                     <td>
                         <a href="/players/{{ data.player.id }}">{{ data.player.name }}</a>
                     </td>
-                    <td class="text-center">
+                    <td class="text-center hide-mobile">
                         {% if data.in_season %}
                         <span style="color: var(--success-color);">&#10003;</span>
                         {% else %}
                         <span style="color: var(--text-muted);">-</span>
                         {% endif %}
                     </td>
-                    <td class="text-right money">&pound;{{ "%.2f"|format(data.balance) }}</td>
-                    <td class="text-right money">&pound;{{ "%.2f"|format(data.bets_placed) }}</td>
-                    <td class="text-right money {% if data.bet_balance > 0 %}negative{% endif %}">
+                    <td class="text-right money hide-mobile">&pound;{{ "%.2f"|format(data.balance) }}</td>
+                    <td class="text-right money hide-mobile">&pound;{{ "%.2f"|format(data.bets_placed) }}</td>
+                    <td class="text-right money hide-mobile {% if data.bet_balance > 0 %}negative{% endif %}">
                         {% if data.bet_balance > 0 %}&pound;{{ "%.2f"|format(data.bet_balance) }}{% else %}-{% endif %}
                     </td>
-                    <td class="text-right money">&pound;{{ "%.2f"|format(data.won) }}</td>
+                    <td class="text-right money hide-mobile">&pound;{{ "%.2f"|format(data.won) }}</td>
                     <td class="text-right money {% if data.profit_loss >= 0 %}positive{% else %}negative{% endif %}">
                         &pound;{{ "%.2f"|format(data.profit_loss) }}
                     </td>
@@ -60,7 +60,8 @@
                     </td>
                     <td class="text-center">
                         <form method="post" action="/players/{{ data.player.id }}/toggle" style="display: inline;">
-                            <button type="submit" class="btn btn-sm {% if data.in_season %}btn-danger{% else %}btn-success{% endif %}">
+                            <button type="submit" class="btn btn-sm {% if data.in_season %}btn-danger{% else %}btn-success{% endif %}"
+                                {% if data.in_season %}onclick="return confirm('Remove {{ data.player.name }} from this season?')"{% endif %}>
                                 {% if data.in_season %}Remove{% else %}Add{% endif %}
                             </button>
                         </form>
