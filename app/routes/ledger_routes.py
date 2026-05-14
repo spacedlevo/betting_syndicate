@@ -123,27 +123,25 @@ async def contribution_form(request: Request, db: Session = Depends(get_db)):
 @router.post("/contribute")
 async def add_contribution(
     request: Request,
-    player_ids: list = Form(...),
+    player_id: int = Form(...),
     amount: Decimal = Form(...),
     entry_date: date = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Add contributions for selected players."""
+    """Add a contribution for a single player."""
     season = db.query(Season).filter(Season.is_active == True).first()
     if not season:
         return RedirectResponse(url="/ledger/contribute", status_code=303)
 
-    # Add contribution for each selected player
-    for player_id in player_ids:
-        ledger.add_contribution(
-            db,
-            player_id=int(player_id),
-            season_id=season.id,
-            amount=amount,
-            entry_date=entry_date
-        )
+    ledger.add_contribution(
+        db,
+        player_id=player_id,
+        season_id=season.id,
+        amount=amount,
+        entry_date=entry_date
+    )
 
-    set_flash(request, f"Contributions added for {len(player_ids)} player(s).")
+    set_flash(request, "Contribution added.")
     return RedirectResponse(url="/", status_code=303)
 
 

@@ -182,18 +182,19 @@ using CSS variables throughout.
 
 ---
 
-## Mobile Quick Reference
+## Mobile Quick Reference (post review 2)
 
 | Page | Status | Notes |
 | --- | --- | --- |
-| Dashboard | Good | Summary gradient and stats grid adapt well |
-| Bets list | Fixed | Now paginated at 50 per page |
-| Place Bet | Good | Clean single-column form; usable |
-| Players | Fixed | Scroll affordance added; key columns always visible |
-| Ledger | Fixed | Filter row now stacks correctly on mobile |
-| Seasons | Good | Works well at all sizes |
+| Dashboard | Fixed | Player Performance now shows Player + P/L only; all values fully visible |
+| Bets list | Fixed | Odds and Return hidden; 6 visible columns, scrollable |
+| Place Bet | Good | Clean single-column form; no issues |
+| Players | Good | Key columns visible; Remove buttons fully shown |
+| Player Detail | Fixed | Description hidden on mobile; Date + Type + Amount all visible |
+| Ledger | Fixed | Description hidden on mobile; Date + Player + Type + Amount visible |
+| Seasons | Fixed | Start/End Date hidden; Season + Status + Actions fully visible |
 | Sports | Good | Simple table; no issues |
-| Audit | Fixed | Filter now stacks on mobile; styles moved to main CSS |
+| Audit | Fixed | 4-stat grid now 2×2; Source + Ledger Entry hidden from table |
 
 ---
 
@@ -213,3 +214,12 @@ using CSS variables throughout.
 | 10 | Define `--info-color` variable | Tiny | Fixed |
 | 11 | Flash messages after form submit | Medium | Fixed |
 | 12 | Move audit styles to main CSS | Small | Fixed |
+| 13 | Seasons table Actions column clipped on mobile | Small | Fixed |
+| 14 | Dashboard Performance P/L column clipped on mobile | Small | Fixed |
+| 15 | Bets list 8-column table too wide for mobile | Small | Fixed |
+| 16 | Player detail Amount column off-screen on mobile | Small | Fixed |
+| 17 | Ledger Amount column off-screen on mobile | Small | Fixed |
+| 18 | Audit 4-stat grid unreadable on mobile (repeat(4,1fr)) | Small | Fixed |
+| 19 | Audit table Source + Ledger Entry making table too wide | Small | Fixed |
+| 20 | Table `min-width` forcing unnecessary scroll on narrow tables | Small | Fixed |
+| 21 | Right-fade gradient covering last column content | Small | Fixed |

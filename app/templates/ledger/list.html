@@ -63,7 +63,7 @@
                     <th>Date</th>
                     <th>Player</th>
                     <th>Type</th>
-                    <th>Description</th>
+                    <th class="hide-mobile">Description</th>
                     <th class="text-right">Amount</th>
                 </tr>
             </thead>
@@ -77,7 +77,7 @@
                             {{ entry.entry_type.replace('_', ' ').title() }}
                         </span>
                     </td>
-                    <td>{{ entry.description or '-' }}</td>
+                    <td class="hide-mobile">{{ entry.description or '-' }}</td>
                     <td class="text-right money {% if entry.amount >= 0 %}positive{% else %}negative{% endif %}">
                         &pound;{{ "%.2f"|format(entry.amount) }}
                     </td>

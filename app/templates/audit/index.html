@@ -70,7 +70,7 @@
 </div>
 
 {# ── Match status counts ── #}
-<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem;">
+<div class="audit-stats-grid">
   <div class="card stat-card">
     <div class="stats-label">Confirmed</div>
     <div class="stats-value" style="color:var(--success-color)">{{ stats.matched }}</div>
@@ -173,9 +173,9 @@
         <tr>
           <th>Date</th>
           <th>Player</th>
-          <th>Source</th>
+          <th class="hide-mobile">Source</th>
           <th class="text-right">Bank Amount</th>
-          <th>Ledger Entry</th>
+          <th class="hide-mobile">Ledger Entry</th>
           <th class="text-center">Status</th>
           <th>Actions</th>
         </tr>
@@ -188,7 +188,7 @@
 
           <td>{{ row.player.name }}</td>
 
-          <td><span class="badge badge-{{ row.txn.source }}">{{ row.txn.source|title }}</span></td>
+          <td class="hide-mobile"><span class="badge badge-{{ row.txn.source }}">{{ row.txn.source|title }}</span></td>
 
           <td class="text-right">
             {% if row.txn.amount >= 0 %}
@@ -199,7 +199,7 @@
           </td>
 
           {# Ledger reference column #}
-          <td>
+          <td class="hide-mobile">
             {% if row.ledger_entry %}
               <span class="ledger-ref confirmed">
                 {{ row.ledger_entry.entry_date.strftime('%d/%m/%Y') }}

@@ -570,6 +570,7 @@ tr.row-disregarded td { opacity: 0.55; }
 .stat-card { text-align: center; padding: 1rem; }
 .stat-card .stats-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
 .stat-card .stats-value { font-size: 1.5rem; font-weight: 700; }
+.audit-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 
 .section-meta { font-size: 0.875rem; color: var(--text-muted); }
 
@@ -1031,12 +1032,17 @@ textarea:focus {
 
     table {
         font-size: 0.8125rem;
-        min-width: 500px;
+        min-width: 0;
     }
 
     th, td {
         padding: 0.5rem 0.75rem;
         white-space: nowrap;
+    }
+
+    /* Keep last column clear of the right-fade gradient */
+    th:last-child, td:last-child {
+        padding-right: 2.5rem;
     }
 
     /* Hide less important columns on mobile */
@@ -1092,6 +1098,22 @@ textarea:focus {
     /* Two column layout */
     .two-col {
         grid-template-columns: 1fr !important;
+    }
+
+    /* Audit 4-stat row — keep cards in a row, reset bleed margins */
+    .audit-stats-grid .card {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0.5rem;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+    }
+    .audit-stats-grid .stat-card .stats-label {
+        letter-spacing: 0;
+        font-size: 0.6rem;
+    }
+    .audit-stats-grid .stat-card .stats-value {
+        font-size: 1.125rem;
     }
 
     /* Pagination */
@@ -1170,7 +1192,7 @@ textarea:focus {
 
     table {
         font-size: 0.75rem;
-        min-width: 400px;
+        min-width: 0;
     }
 
     th, td {

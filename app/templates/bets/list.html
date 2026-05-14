@@ -25,10 +25,10 @@
                     <th>Date</th>
                     <th>Placed By</th>
                     <th>Description</th>
-                    <th>Odds</th>
+                    <th class="hide-mobile">Odds</th>
                     <th class="text-right">Stake</th>
                     <th>Status</th>
-                    <th class="text-right">Return</th>
+                    <th class="text-right hide-mobile">Return</th>
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -38,7 +38,7 @@
                     <td>{{ bet.bet_date.strftime('%d/%m/%Y') }}</td>
                     <td>{{ bet.placed_by_player.name }}</td>
                     <td>{{ bet.description[:50] }}{% if bet.description|length > 50 %}...{% endif %}</td>
-                    <td>{{ bet.odds or '-' }}</td>
+                    <td class="hide-mobile">{{ bet.odds or '-' }}</td>
                     <td class="text-right money">
                         &pound;{{ "%.2f"|format(bet.stake) }}
                         {% if bet.is_free_bet %}<span class="badge" style="background: var(--info-color, #3b82f6); color: #fff; font-size: 0.65rem; margin-left: 0.25rem;">FREE</span>{% endif %}
@@ -46,7 +46,7 @@
                     <td>
                         <span class="badge badge-{{ bet.status }}">{{ bet.status }}</span>
                     </td>
-                    <td class="text-right money">
+                    <td class="text-right money hide-mobile">
                         {% if bet.winnings %}
                             &pound;{{ "%.2f"|format(bet.winnings) }}
                         {% elif bet.status == 'pending' and bet.odds %}

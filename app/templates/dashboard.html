@@ -120,10 +120,10 @@
                 <thead>
                     <tr>
                         <th>Player</th>
-                        <th class="text-right">Balance</th>
-                        <th class="text-right">Bets</th>
-                        <th class="text-right">Bet Bal</th>
-                        <th class="text-right">Won</th>
+                        <th class="text-right hide-mobile">Balance</th>
+                        <th class="text-right hide-mobile">Bets</th>
+                        <th class="text-right hide-mobile">Bet Bal</th>
+                        <th class="text-right hide-mobile">Won</th>
                         <th class="text-right">P/L</th>
                     </tr>
                 </thead>
@@ -131,12 +131,12 @@
                     {% for stat in player_stats %}
                     <tr class="{% if stat.profit_loss < 0 %}row-negative{% elif stat.bet_balance > 0 %}row-warning{% endif %}">
                         <td>{{ stat.player_name }}</td>
-                        <td class="text-right money">&pound;{{ "%.2f"|format(stat.balance) }}</td>
-                        <td class="text-right money">&pound;{{ "%.2f"|format(stat.bets_placed) }}</td>
-                        <td class="text-right money {% if stat.bet_balance > 0 %}negative{% endif %}">
+                        <td class="text-right money hide-mobile">&pound;{{ "%.2f"|format(stat.balance) }}</td>
+                        <td class="text-right money hide-mobile">&pound;{{ "%.2f"|format(stat.bets_placed) }}</td>
+                        <td class="text-right money hide-mobile {% if stat.bet_balance > 0 %}negative{% endif %}">
                             {% if stat.bet_balance > 0 %}&pound;{{ "%.2f"|format(stat.bet_balance) }}{% else %}-{% endif %}
                         </td>
-                        <td class="text-right money">&pound;{{ "%.2f"|format(stat.won) }}</td>
+                        <td class="text-right money hide-mobile">&pound;{{ "%.2f"|format(stat.won) }}</td>
                         <td class="text-right money {% if stat.profit_loss >= 0 %}positive{% else %}negative{% endif %}">
                             &pound;{{ "%.2f"|format(stat.profit_loss) }}
                         </td>

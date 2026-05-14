@@ -14,8 +14,8 @@
             <thead>
                 <tr>
                     <th>Season</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
+                    <th class="hide-mobile">Start Date</th>
+                    <th class="hide-mobile">End Date</th>
                     <th class="text-center">Status</th>
                     <th class="text-center">Actions</th>
                 </tr>
@@ -26,8 +26,8 @@
                     <td>
                         <strong>{{ data.season.name }}</strong>
                     </td>
-                    <td>{{ data.season.start_date.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ data.season.end_date.strftime('%d/%m/%Y') if data.season.end_date else '-' }}</td>
+                    <td class="hide-mobile">{{ data.season.start_date.strftime('%d/%m/%Y') }}</td>
+                    <td class="hide-mobile">{{ data.season.end_date.strftime('%d/%m/%Y') if data.season.end_date else '-' }}</td>
                     <td class="text-center">
                         {% if data.is_frozen %}
                         <span class="badge badge-lost">Frozen</span>
