@@ -207,6 +207,7 @@ async def update_result_form(bet_id: int, request: Request, db: Session = Depend
 @router.post("/{bet_id}/result")
 async def update_result(
     bet_id: int,
+    request: Request,
     status: str = Form(...),
     result_date: date = Form(...),
     winnings: Decimal = Form(None),
