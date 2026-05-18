@@ -8,7 +8,7 @@
 </div>
 
 <div class="card" style="max-width: 500px;">
-    <form method="post" action="/players">
+    <form method="post" action="{% if player %}/players/{{ player.id }}/edit{% else %}/players{% endif %}">
         <div class="form-group">
             <label for="name">Player Name</label>
             <input type="text" id="name" name="name" required value="{{ player.name if player else '' }}">
@@ -19,7 +19,7 @@
             <input type="email" id="email" name="email" value="{{ player.email if player and player.email else '' }}">
         </div>
 
-        {% if season %}
+        {% if not player and season %}
         <div class="form-group">
             <label class="checkbox-item">
                 <input type="checkbox" name="add_to_season" value="true" checked>
@@ -29,8 +29,8 @@
         {% endif %}
 
         <div class="form-group" style="margin-top: 1.5rem;">
-            <button type="submit" class="btn btn-primary">Save Player</button>
-            <a href="/players" class="btn btn-outline">Cancel</a>
+            <button type="submit" class="btn btn-primary">{% if player %}Save Changes{% else %}Save Player{% endif %}</button>
+            <a href="{% if player %}/players/{{ player.id }}{% else %}/players{% endif %}" class="btn btn-outline">Cancel</a>
         </div>
     </form>
 </div>

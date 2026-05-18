@@ -193,6 +193,51 @@ async def add_payout(
     return RedirectResponse(url="/", status_code=303)
 
 
+@router.get("/{entry_id}/edit", response_class=HTMLResponse)
+async def edit_entry_form(entry_id: int, request: Request, db: Session = Depends(get_db)):
+    """Show form to edit a ledger entry (contribution or payout only)."""
+    entry = db.query(LedgerEntry).filter(LedgerEntry.id == entry_id).first()
+    if not entry:
+        return RedirectResponse(url="/ledger", status_code=303)
+
+    if entry.entry_type not in ('contribution', 'payout'):
+        set_flash(request, "Only contribution and payout entries can be edited directly. Edit the bet instead.")
+        return RedirectResponse(url="/ledger", status_code=303)
+
+    players = db.query(Player).filter(Player.is_active == True).order_by(Player.name).all()
+
+    return templates.TemplateResponse("ledger/edit_entry.html", {
+        "request": request,
+        "entry": entry,
+        "players": players
+    })
+
+
+@router.post("/{entry_id}/edit")
+async def update_entry(
+    entry_id: int,
+    request: Request,
+    player_id: int = Form(...),
+    amount: Decimal = Form(...),
+    entry_date: date = Form(...),
+    description: str = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Update a contribution or payout ledger entry."""
+    entry = db.query(LedgerEntry).filter(LedgerEntry.id == entry_id).first()
+    if not entry or entry.entry_type not in ('contribution', 'payout'):
+        return RedirectResponse(url="/ledger", status_code=303)
+
+    entry.player_id = player_id
+    entry.amount = amount if entry.entry_type == 'contribution' else -abs(amount)
+    entry.entry_date = entry_date
+    entry.description = description if description else None
+    db.commit()
+
+    set_flash(request, "Entry updated.")
+    return RedirectResponse(url="/ledger", status_code=303)
+
+
 @router.get("/download-csv")
 async def download_ledger_csv(
     season_id: Optional[int] = None,

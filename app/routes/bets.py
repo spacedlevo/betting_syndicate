@@ -256,6 +256,99 @@ async def update_result(
     return RedirectResponse(url="/bets", status_code=303)
 
 
+@router.get("/{bet_id}/edit", response_class=HTMLResponse)
+async def edit_bet_form(bet_id: int, request: Request, db: Session = Depends(get_db)):
+    """Show form to edit a bet."""
+    bet = db.query(Bet).filter(Bet.id == bet_id).first()
+    if not bet:
+        return RedirectResponse(url="/bets", status_code=303)
+
+    season = db.query(Season).filter(Season.is_active == True).first()
+    players = db.query(Player).order_by(Player.name).all()
+    sports = db.query(Sport).order_by(Sport.name).all()
+
+    return templates.TemplateResponse("bets/form.html", {
+        "request": request,
+        "bet": bet,
+        "players": players,
+        "season": season,
+        "sports": sports
+    })
+
+
+@router.post("/{bet_id}/edit")
+async def update_bet(
+    bet_id: int,
+    request: Request,
+    placed_by_player_id: int = Form(...),
+    stake: Decimal = Form(...),
+    description: str = Form(...),
+    odds: str = Form(None),
+    sport_id: int = Form(None),
+    bet_date: date = Form(...),
+    result_date: date = Form(None),
+    winnings: Decimal = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Update a bet, adjusting ledger entries as needed."""
+    bet = db.query(Bet).filter(Bet.id == bet_id).first()
+    if not bet:
+        return RedirectResponse(url="/bets", status_code=303)
+
+    old_stake = bet.stake
+    old_player_id = bet.placed_by_player_id
+    old_winnings = bet.winnings
+
+    bet.description = description
+    bet.odds = odds if odds else None
+    bet.sport_id = sport_id if sport_id else None
+    bet.bet_date = bet_date
+
+    if bet.status == 'pending':
+        bet.placed_by_player_id = placed_by_player_id
+        bet.stake = stake
+
+        if not bet.is_free_bet:
+            bet_placed_entry = db.query(LedgerEntry).filter(
+                LedgerEntry.bet_id == bet_id,
+                LedgerEntry.entry_type == 'bet_placed'
+            ).first()
+            if bet_placed_entry:
+                bet_placed_entry.amount = -stake
+                bet_placed_entry.player_id = placed_by_player_id
+                bet_placed_entry.entry_date = bet_date
+
+    elif bet.status == 'won':
+        if result_date:
+            bet.result_date = result_date
+        if winnings is not None and winnings != old_winnings:
+            bet.winnings = winnings
+            winnings_entry = db.query(LedgerEntry).filter(
+                LedgerEntry.bet_id == bet_id,
+                LedgerEntry.entry_type == 'winnings'
+            ).first()
+            if winnings_entry:
+                winnings_entry.amount = winnings
+                if result_date:
+                    winnings_entry.entry_date = result_date
+
+    elif bet.status in ('lost', 'void'):
+        if result_date:
+            bet.result_date = result_date
+        if bet.status == 'void' and not bet.is_free_bet and stake != old_stake:
+            bet.stake = stake
+            void_entry = db.query(LedgerEntry).filter(
+                LedgerEntry.bet_id == bet_id,
+                LedgerEntry.entry_type == 'bet_void'
+            ).first()
+            if void_entry:
+                void_entry.amount = stake
+
+    db.commit()
+    set_flash(request, "Bet updated successfully.")
+    return RedirectResponse(url=f"/bets/{bet_id}", status_code=303)
+
+
 @router.post("/{bet_id}/screenshot")
 async def upload_screenshot(
     bet_id: int,

@@ -55,12 +55,13 @@
                             -
                         {% endif %}
                     </td>
-                    <td class="text-center">
+                    <td class="text-center" style="white-space: nowrap;">
                         {% if bet.status == 'pending' %}
                         <a href="/bets/{{ bet.id }}/result" class="btn btn-sm btn-secondary">Update</a>
                         {% else %}
                         <a href="/bets/{{ bet.id }}" class="btn btn-sm btn-outline">View</a>
                         {% endif %}
+                        <a href="/bets/{{ bet.id }}/edit" class="btn btn-sm btn-outline">Edit</a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -65,6 +65,7 @@
                     <th>Type</th>
                     <th class="hide-mobile">Description</th>
                     <th class="text-right">Amount</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,11 +82,18 @@
                     <td class="text-right money {% if entry.amount >= 0 %}positive{% else %}negative{% endif %}">
                         &pound;{{ "%.2f"|format(entry.amount) }}
                     </td>
+                    <td class="text-center">
+                        {% if entry.entry_type in ('contribution', 'payout') %}
+                        <a href="/ledger/{{ entry.id }}/edit" class="btn btn-sm btn-outline">Edit</a>
+                        {% elif entry.bet_id %}
+                        <a href="/bets/{{ entry.bet_id }}/edit" class="btn btn-sm btn-outline">Edit Bet</a>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
                 {% if not entries %}
                 <tr>
-                    <td colspan="5" class="text-center" style="color: var(--text-muted);">No ledger entries found</td>
+                    <td colspan="6" class="text-center" style="color: var(--text-muted);">No ledger entries found</td>
                 </tr>
                 {% endif %}
             </tbody>

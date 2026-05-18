@@ -12,6 +12,7 @@ from datetime import date
 from app.database import get_db
 from app.models import Player, PlayerSeason, Season
 from app import calculations
+from app.flash import set_flash
 
 router = APIRouter()
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
@@ -141,6 +142,42 @@ async def player_detail(player_id: int, request: Request, db: Session = Depends(
         "ledger_entries": ledger_entries,
         "season": season
     })
+
+
+@router.get("/{player_id}/edit", response_class=HTMLResponse)
+async def edit_player_form(player_id: int, request: Request, db: Session = Depends(get_db)):
+    """Show form to edit a player."""
+    player = db.query(Player).filter(Player.id == player_id).first()
+    if not player:
+        return RedirectResponse(url="/players", status_code=303)
+
+    season = db.query(Season).filter(Season.is_active == True).first()
+    return templates.TemplateResponse("players/form.html", {
+        "request": request,
+        "player": player,
+        "season": season
+    })
+
+
+@router.post("/{player_id}/edit")
+async def update_player(
+    player_id: int,
+    request: Request,
+    name: str = Form(...),
+    email: str = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Update a player's name and email."""
+    player = db.query(Player).filter(Player.id == player_id).first()
+    if not player:
+        return RedirectResponse(url="/players", status_code=303)
+
+    player.name = name
+    player.email = email if email else None
+    db.commit()
+
+    set_flash(request, "Player updated.")
+    return RedirectResponse(url=f"/players/{player_id}", status_code=303)
 
 
 @router.post("/{player_id}/toggle")

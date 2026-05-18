@@ -54,13 +54,47 @@ async def create_sport(
     return RedirectResponse(url="/sports", status_code=303)
 
 
+@router.get("/{sport_id}/edit", response_class=HTMLResponse)
+async def edit_sport_form(sport_id: int, request: Request, db: Session = Depends(get_db)):
+    """Show form to edit a sport."""
+    sport = db.query(Sport).filter(Sport.id == sport_id).first()
+    if not sport:
+        return RedirectResponse(url="/sports", status_code=303)
+
+    return templates.TemplateResponse("sports/form.html", {
+        "request": request,
+        "sport": sport
+    })
+
+
+@router.post("/{sport_id}/edit")
+async def update_sport(
+    sport_id: int,
+    name: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Update a sport's name."""
+    sport = db.query(Sport).filter(Sport.id == sport_id).first()
+    if not sport:
+        return RedirectResponse(url="/sports", status_code=303)
+
+    existing = db.query(Sport).filter(Sport.name == name.strip(), Sport.id != sport_id).first()
+    if existing:
+        return RedirectResponse(url=f"/sports/{sport_id}/edit?error=A sport with that name already exists", status_code=303)
+
+    sport.name = name.strip()
+    db.commit()
+
+    return RedirectResponse(url="/sports", status_code=303)
+
+
 @router.get("/{sport_id}", response_class=HTMLResponse)
 async def sport_detail(sport_id: int, request: Request, db: Session = Depends(get_db)):
     """Show sport details."""
     sport = db.query(Sport).filter(Sport.id == sport_id).first()
     if not sport:
         return RedirectResponse(url="/sports", status_code=303)
-    
+
     return templates.TemplateResponse("sports/detail.html", {
         "request": request,
         "sport": sport

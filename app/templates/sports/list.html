@@ -37,6 +37,7 @@
                 <td>{{ sport.created_at.strftime('%b %d, %Y') }}</td>
                 <td>
                     <a href="/sports/{{ sport.id }}" class="btn btn-sm btn-outline">View Details</a>
+                    <a href="/sports/{{ sport.id }}/edit" class="btn btn-sm btn-outline">Edit</a>
                 </td>
             </tr>
             {% endfor %}

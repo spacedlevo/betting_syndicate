@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Add New Sport - Betting Syndicate{% endblock %}
+{% block title %}{% if sport %}Edit Sport{% else %}Add New Sport{% endif %} - Betting Syndicate{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Add New Sport</h1>
+    <h1>{% if sport %}Edit Sport{% else %}Add New Sport{% endif %}</h1>
     <a href="/sports" class="btn btn-outline">Back to Sports</a>
 </div>
 
+{% if request.query_params.get('error') %}
+<div class="alert alert-danger">
+    {{ request.query_params.get('error') }}
+</div>
+{% endif %}
+
 <div class="card" style="max-width: 500px;">
-    <form method="post" action="/sports">
+    <form method="post" action="{% if sport %}/sports/{{ sport.id }}/edit{% else %}/sports{% endif %}">
         <div class="form-group">
             <label for="name">Sport Name</label>
-            <input 
-                type="text" 
-                id="name" 
-                name="name" 
+            <input
+                type="text"
+                id="name"
+                name="name"
                 value="{% if sport %}{{ sport.name }}{% endif %}"
                 required
                 placeholder="e.g., Football, Tennis, Basketball"
@@ -25,7 +31,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Add Sport</button>
+            <button type="submit" class="btn btn-primary">{% if sport %}Save Changes{% else %}Add Sport{% endif %}</button>
             <a href="/sports" class="btn btn-outline">Cancel</a>
         </div>
     </form>

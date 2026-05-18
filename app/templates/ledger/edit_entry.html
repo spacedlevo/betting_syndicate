@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Ledger Entry - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Ledger Entry</h1>
+</div>
+
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+        <span class="badge badge-{% if entry.entry_type == 'contribution' %}contribution{% else %}payout{% endif %}">
+            {{ entry.entry_type.replace('_', ' ').title() }}
+        </span>
+    </div>
+
+    <form method="post" action="/ledger/{{ entry.id }}/edit">
+        <div class="form-group">
+            <label for="player_id">Player</label>
+            <select id="player_id" name="player_id" required>
+                {% for player in players %}
+                <option value="{{ player.id }}" {% if player.id == entry.player_id %}selected{% endif %}>
+                    {{ player.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Amount (&pound;)</label>
+            <input type="number" id="amount" name="amount" step="0.01" min="0.01" required
+                value="{{ entry.amount|abs }}">
+            {% if entry.entry_type == 'payout' %}
+            <small style="color: var(--text-muted);">Enter as a positive number — payouts are stored as negative automatically.</small>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="entry_date">Date</label>
+            <input type="date" id="entry_date" name="entry_date" required value="{{ entry.entry_date }}">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description (optional)</label>
+            <input type="text" id="description" name="description" value="{{ entry.description or '' }}" placeholder="e.g., Week 5 contribution">
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/ledger" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -58,7 +58,8 @@
                     <td class="text-right money">
                         &pound;{{ "%.2f"|format(data.payout) }}
                     </td>
-                    <td class="text-center">
+                    <td class="text-center" style="white-space: nowrap;">
+                        <a href="/players/{{ data.player.id }}/edit" class="btn btn-sm btn-outline">Edit</a>
                         <form method="post" action="/players/{{ data.player.id }}/toggle" style="display: inline;">
                             <button type="submit" class="btn btn-sm {% if data.in_season %}btn-danger{% else %}btn-success{% endif %}"
                                 {% if data.in_season %}onclick="return confirm('Remove {{ data.player.name }} from this season?')"{% endif %}>
