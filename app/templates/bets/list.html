@@ -42,6 +42,7 @@
                     <td class="text-right money">
                         &pound;{{ "%.2f"|format(bet.stake) }}
                         {% if bet.is_free_bet %}<span class="badge" style="background: var(--info-color, #3b82f6); color: #fff; font-size: 0.65rem; margin-left: 0.25rem;">FREE</span>{% endif %}
+                        {% if bet.is_pot_bet %}<span class="badge" style="background: #f59e0b; color: #fff; font-size: 0.65rem; margin-left: 0.25rem;">POT</span>{% endif %}
                     </td>
                     <td>
                         <span class="badge badge-{{ bet.status }}">{{ bet.status }}</span>

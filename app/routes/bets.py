@@ -124,6 +124,7 @@ async def create_bet(
     odds: str = Form(None),
     sport_id: int = Form(None),
     is_free_bet: bool = Form(False),
+    is_pot_bet: bool = Form(False),
     bet_date: date = Form(...),
     screenshot: UploadFile = File(None),
     db: Session = Depends(get_db)
@@ -147,6 +148,7 @@ async def create_bet(
         odds=odds if odds else None,
         sport_id=sport_id if sport_id else None,
         is_free_bet=is_free_bet,
+        is_pot_bet=is_pot_bet,
         bet_date=bet_date,
         status='pending',
         screenshot=screenshot_filename

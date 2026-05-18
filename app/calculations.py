@@ -8,7 +8,7 @@ This ensures complete auditability and traceability.
 """
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, case
+from sqlalchemy import func, and_, case, or_
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Optional, Dict, List, Any
@@ -102,7 +102,10 @@ def get_player_total_bets(
     season_id: Optional[int] = None
 ) -> Decimal:
     """
-    Calculate total amount bet by a player, excluding voided bets.
+    Calculate total amount bet by a player, excluding voided bets and pot bets.
+
+    Pot bets are funded from the shared winnings pool, not the individual player's
+    budget, so they are excluded from personal betting stats.
 
     This is the absolute value of all bet_placed entries minus any
     bet_void entries (voided stakes are returned and can be reused).
@@ -113,22 +116,26 @@ def get_player_total_bets(
         season_id: Optional season filter
 
     Returns:
-        Total bets placed as Decimal (excluding voided bets)
+        Total bets placed as Decimal (excluding voided bets and pot bets)
     """
-    # Sum of bet_placed entries (stored as negative, so use abs)
+    # Sum of bet_placed entries (stored as negative, so use abs) — exclude pot bets
     placed_query = db.query(func.sum(func.abs(LedgerEntry.amount))).filter(
         and_(
             LedgerEntry.player_id == player_id,
             LedgerEntry.entry_type == 'bet_placed'
         )
+    ).outerjoin(Bet, LedgerEntry.bet_id == Bet.id).filter(
+        or_(LedgerEntry.bet_id == None, Bet.is_pot_bet == False)
     )
 
-    # Sum of bet_void entries (stored as positive)
+    # Sum of bet_void entries (stored as positive) — exclude pot bets
     void_query = db.query(func.sum(LedgerEntry.amount)).filter(
         and_(
             LedgerEntry.player_id == player_id,
             LedgerEntry.entry_type == 'bet_void'
         )
+    ).outerjoin(Bet, LedgerEntry.bet_id == Bet.id).filter(
+        or_(LedgerEntry.bet_id == None, Bet.is_pot_bet == False)
     )
 
     if season_id is not None:
@@ -150,7 +157,10 @@ def get_player_total_winnings(
     season_id: Optional[int] = None
 ) -> Decimal:
     """
-    Calculate total winnings from bets placed by a player.
+    Calculate total winnings from bets placed by a player, excluding pot bets.
+
+    Pot bet winnings go into the shared pool (tracked via get_share_per_player),
+    so they are excluded from individual player stats.
 
     This is the sum of all 'winnings' entries for this player.
 
@@ -160,13 +170,15 @@ def get_player_total_winnings(
         season_id: Optional season filter
 
     Returns:
-        Total winnings as Decimal
+        Total winnings as Decimal (excluding pot bet winnings)
     """
     query = db.query(func.sum(LedgerEntry.amount)).filter(
         and_(
             LedgerEntry.player_id == player_id,
             LedgerEntry.entry_type == 'winnings'
         )
+    ).outerjoin(Bet, LedgerEntry.bet_id == Bet.id).filter(
+        or_(LedgerEntry.bet_id == None, Bet.is_pot_bet == False)
     )
 
     if season_id is not None:
@@ -450,9 +462,13 @@ def get_expected_contribution_per_player(
 
 def get_share_per_player(db: Session, season_id: int) -> Decimal:
     """
-    Calculate each player's share of the winnings.
+    Calculate each player's share of the winnings pool.
 
-    Formula: total_winnings ÷ number_of_active_players
+    Formula: adjusted_pool ÷ number_of_active_players
+
+    The adjusted pool = regular winnings + pot bet winnings - pot bet stakes.
+    Pot bets are funded from the winnings pool rather than contributions, so their
+    stakes reduce the pool and their returns add to it.
 
     Args:
         db: Database session
@@ -461,7 +477,39 @@ def get_share_per_player(db: Session, season_id: int) -> Decimal:
     Returns:
         Share per player as Decimal
     """
-    total_winnings = get_season_total_winnings(db, season_id)
+    # Regular winnings (from non-pot bets)
+    regular_winnings = db.query(func.sum(LedgerEntry.amount)).filter(
+        and_(
+            LedgerEntry.entry_type == 'winnings',
+            LedgerEntry.season_id == season_id
+        )
+    ).outerjoin(Bet, LedgerEntry.bet_id == Bet.id).filter(
+        or_(LedgerEntry.bet_id == None, Bet.is_pot_bet == False)
+    ).scalar() or Decimal('0.00')
+
+    # Pot bet winnings (if won, go back into shared pool)
+    pot_winnings = db.query(func.sum(LedgerEntry.amount)).join(
+        Bet, LedgerEntry.bet_id == Bet.id
+    ).filter(
+        and_(
+            LedgerEntry.entry_type == 'winnings',
+            LedgerEntry.season_id == season_id,
+            Bet.is_pot_bet == True
+        )
+    ).scalar() or Decimal('0.00')
+
+    # Pot bet stakes (come out of the shared pool)
+    pot_stakes = db.query(func.sum(func.abs(LedgerEntry.amount))).join(
+        Bet, LedgerEntry.bet_id == Bet.id
+    ).filter(
+        and_(
+            LedgerEntry.entry_type == 'bet_placed',
+            LedgerEntry.season_id == season_id,
+            Bet.is_pot_bet == True
+        )
+    ).scalar() or Decimal('0.00')
+
+    adjusted_pool = Decimal(str(regular_winnings)) + Decimal(str(pot_winnings)) - Decimal(str(pot_stakes))
 
     active_players_count = db.query(PlayerSeason).filter(
         and_(
@@ -473,7 +521,7 @@ def get_share_per_player(db: Session, season_id: int) -> Decimal:
     if active_players_count == 0:
         return Decimal('0.00')
 
-    share = total_winnings / active_players_count
+    share = adjusted_pool / active_players_count
     return Decimal(share).quantize(Decimal('0.01'))
 
 

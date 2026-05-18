@@ -86,10 +86,23 @@
                 Free bet from bookmaker &mdash; stake is not returned if won
             </small>
         </div>
+        <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="is_pot_bet" name="is_pot_bet" value="true" style="width: auto;">
+                Pot Bet
+            </label>
+            <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                Stake comes from the shared winnings pot &mdash; affects everyone's payout equally
+            </small>
+        </div>
         {% elif bet %}
         <div class="form-group">
             <label style="color: var(--text-muted);">Free Bet</label>
             <p style="margin: 0; color: var(--text-muted);">{% if bet.is_free_bet %}Yes (cannot be changed){% else %}No (cannot be changed){% endif %}</p>
+        </div>
+        <div class="form-group">
+            <label style="color: var(--text-muted);">Pot Bet</label>
+            <p style="margin: 0; color: var(--text-muted);">{% if bet.is_pot_bet %}Yes (cannot be changed){% else %}No (cannot be changed){% endif %}</p>
         </div>
         {% endif %}
 
