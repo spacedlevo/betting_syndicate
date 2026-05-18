@@ -102,10 +102,9 @@ def get_player_total_bets(
     season_id: Optional[int] = None
 ) -> Decimal:
     """
-    Calculate total amount bet by a player, excluding voided bets and pot bets.
+    Calculate total amount bet by a player, excluding voided bets.
 
-    Pot bets are funded from the shared winnings pool, not the individual player's
-    budget, so they are excluded from personal betting stats.
+    Includes pot bets so the full amount the player has wagered is visible.
 
     This is the absolute value of all bet_placed entries minus any
     bet_void entries (voided stakes are returned and can be reused).
@@ -116,26 +115,22 @@ def get_player_total_bets(
         season_id: Optional season filter
 
     Returns:
-        Total bets placed as Decimal (excluding voided bets and pot bets)
+        Total bets placed as Decimal (excluding voided bets)
     """
-    # Sum of bet_placed entries (stored as negative, so use abs) — exclude pot bets
+    # Sum of bet_placed entries (stored as negative, so use abs)
     placed_query = db.query(func.sum(func.abs(LedgerEntry.amount))).filter(
         and_(
             LedgerEntry.player_id == player_id,
             LedgerEntry.entry_type == 'bet_placed'
         )
-    ).outerjoin(Bet, LedgerEntry.bet_id == Bet.id).filter(
-        or_(LedgerEntry.bet_id == None, Bet.is_pot_bet == False)
     )
 
-    # Sum of bet_void entries (stored as positive) — exclude pot bets
+    # Sum of bet_void entries (stored as positive)
     void_query = db.query(func.sum(LedgerEntry.amount)).filter(
         and_(
             LedgerEntry.player_id == player_id,
             LedgerEntry.entry_type == 'bet_void'
         )
-    ).outerjoin(Bet, LedgerEntry.bet_id == Bet.id).filter(
-        or_(LedgerEntry.bet_id == None, Bet.is_pot_bet == False)
     )
 
     if season_id is not None:
@@ -157,12 +152,13 @@ def get_player_total_winnings(
     season_id: Optional[int] = None
 ) -> Decimal:
     """
-    Calculate total winnings from bets placed by a player, excluding pot bets.
+    Calculate total winnings from bets placed by a player.
 
-    Pot bet winnings go into the shared pool (tracked via get_share_per_player),
-    so they are excluded from individual player stats.
+    Pot bet winnings go into the shared pool (tracked via get_share_per_player)
+    so they are excluded. Pot bet stakes placed by this player are also deducted,
+    since the player spent that money from the shared winnings pool.
 
-    This is the sum of all 'winnings' entries for this player.
+    Formula: regular_winnings - pot_bet_stakes_placed_by_player
 
     Args:
         db: Database session
@@ -170,9 +166,10 @@ def get_player_total_winnings(
         season_id: Optional season filter
 
     Returns:
-        Total winnings as Decimal (excluding pot bet winnings)
+        Total winnings as Decimal, net of pot bet stakes
     """
-    query = db.query(func.sum(LedgerEntry.amount)).filter(
+    # Regular winnings (non-pot bets only)
+    winnings_query = db.query(func.sum(LedgerEntry.amount)).filter(
         and_(
             LedgerEntry.player_id == player_id,
             LedgerEntry.entry_type == 'winnings'
@@ -181,11 +178,28 @@ def get_player_total_winnings(
         or_(LedgerEntry.bet_id == None, Bet.is_pot_bet == False)
     )
 
-    if season_id is not None:
-        query = query.filter(LedgerEntry.season_id == season_id)
+    # Pot bet stakes placed by this player (deducted from displayed winnings)
+    pot_stakes_query = db.query(func.sum(func.abs(LedgerEntry.amount))).join(
+        Bet, LedgerEntry.bet_id == Bet.id
+    ).filter(
+        and_(
+            LedgerEntry.player_id == player_id,
+            LedgerEntry.entry_type == 'bet_placed',
+            Bet.is_pot_bet == True
+        )
+    )
 
-    result = query.scalar()
-    return Decimal(result) if result else Decimal('0.00')
+    if season_id is not None:
+        winnings_query = winnings_query.filter(LedgerEntry.season_id == season_id)
+        pot_stakes_query = pot_stakes_query.filter(LedgerEntry.season_id == season_id)
+
+    winnings = winnings_query.scalar()
+    pot_stakes = pot_stakes_query.scalar()
+
+    total_winnings = Decimal(str(winnings)) if winnings else Decimal('0.00')
+    total_pot_stakes = Decimal(str(pot_stakes)) if pot_stakes else Decimal('0.00')
+
+    return total_winnings - total_pot_stakes
 
 
 def get_player_net_position(
