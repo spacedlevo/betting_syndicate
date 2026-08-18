@@ -36,6 +36,9 @@ def generate_round_robin(player_ids: list) -> list:
         round_pairs = [(fixed, rotating[-1])] + [
             (rotating[i], rotating[m - 3 - i]) for i in range(m // 2 - 1)
         ]
+        if is_odd:
+            round_pairs = [p for p in round_pairs if p[0] is not None and p[1] is not None] + \
+                          [p for p in round_pairs if p[0] is None or p[1] is None]
         for p1, p2 in round_pairs:
             if p1 is None:
                 matches.append((p2, None))

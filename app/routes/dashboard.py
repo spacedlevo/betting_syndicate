@@ -73,10 +73,11 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         for assignment in assignments:
             assigned_players.append(assignment.player.name)
 
-    # Get recent bets
-    recent_bets = db.query(Bet).order_by(
-        Bet.bet_date.desc()
-    ).limit(10).all()
+    # Get recent bets for active season
+    recent_bets_query = db.query(Bet).filter(Bet.bet_date >= season.start_date)
+    if season.end_date:
+        recent_bets_query = recent_bets_query.filter(Bet.bet_date <= season.end_date)
+    recent_bets = recent_bets_query.order_by(Bet.bet_date.desc()).limit(10).all()
 
     # Calculate number of active players
     num_active_players = db.query(PlayerSeason).filter(

@@ -64,6 +64,11 @@ async def list_bets(
 
     query = db.query(Bet).order_by(Bet.bet_date.desc())
 
+    if season:
+        query = query.filter(Bet.bet_date >= season.start_date)
+        if season.end_date:
+            query = query.filter(Bet.bet_date <= season.end_date)
+
     if status:
         query = query.filter(Bet.status == status)
 

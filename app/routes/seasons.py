@@ -142,6 +142,38 @@ async def update_season(
     return RedirectResponse(url="/seasons", status_code=303)
 
 
+@router.get("/{season_id}/schedule", response_class=HTMLResponse)
+async def view_schedule(season_id: int, request: Request, db: Session = Depends(get_db)):
+    """Show full season schedule — all weeks with their pairings."""
+    season = db.query(Season).filter(Season.id == season_id).first()
+    if not season:
+        return RedirectResponse(url="/seasons", status_code=303)
+
+    weeks = db.query(Week).filter(Week.season_id == season_id).order_by(Week.week_number).all()
+
+    today = date.today()
+    week_rows = []
+    for week in weeks:
+        assignments = sorted(week.assignments, key=lambda a: a.assignment_order)
+        players = [a.player.name for a in assignments]
+        is_current = week.start_date <= today <= week.end_date
+        is_past = week.end_date < today
+        week_rows.append({
+            "week": week,
+            "players": players,
+            "is_solo": len(players) == 1,
+            "is_current": is_current,
+            "is_past": is_past,
+        })
+
+    return templates.TemplateResponse("seasons/schedule.html", {
+        "request": request,
+        "season": season,
+        "week_rows": week_rows,
+        "today": today,
+    })
+
+
 @router.get("/{season_id}/schedule/generate", response_class=HTMLResponse)
 async def generate_schedule_form(season_id: int, request: Request, db: Session = Depends(get_db)):
     """Show form to generate a round-robin schedule for a season."""

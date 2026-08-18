@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule - {{ season.name }} - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Season Schedule</h1>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <span style="color: var(--text-muted);">{{ season.name }}</span>
+        <a href="/seasons/{{ season.id }}/schedule/generate" class="btn btn-sm btn-outline">Regenerate</a>
+    </div>
+</div>
+
+{% if not week_rows %}
+<div class="card">
+    <p style="text-align: center; color: var(--text-muted); padding: 2rem 0;">
+        No schedule generated yet.
+        <a href="/seasons/{{ season.id }}/schedule/generate">Generate one now</a>
+    </p>
+</div>
+{% else %}
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 60px;">Week</th>
+                    <th>Dates</th>
+                    <th>Player 1</th>
+                    <th>Player 2</th>
+                    <th class="text-center hide-mobile">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in week_rows %}
+                <tr class="{% if row.is_current %}row-active{% endif %}" {% if row.is_past %}style="opacity: 0.5;"{% endif %}>
+                    <td class="text-center">
+                        <strong>{{ row.week.week_number }}</strong>
+                    </td>
+                    <td style="white-space: nowrap;">
+                        {{ row.week.start_date.strftime('%d %b') }}
+                        &ndash;
+                        {{ row.week.end_date.strftime('%d %b') }}
+                    </td>
+                    <td>{{ row.players[0] if row.players else '—' }}</td>
+                    <td>
+                        {% if row.is_solo %}
+                        <span class="badge badge-void">Solo</span>
+                        {% elif row.players|length > 1 %}
+                        {{ row.players[1] }}
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td class="text-center hide-mobile">
+                        {% if row.is_current %}
+                        <span class="badge badge-won">Current</span>
+                        {% elif row.is_past %}
+                        <span class="badge" style="background: rgba(148,163,184,0.15); color: #94a3b8;">Past</span>
+                        {% else %}
+                        <span class="badge badge-pending">Upcoming</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="margin-top: 0.75rem; color: var(--text-muted); font-size: 0.8rem; text-align: right;">
+    {{ week_rows|length }} weeks total
+    &bull;
+    {{ week_rows|selectattr('is_past')|list|length }} past
+    &bull;
+    {{ week_rows|selectattr('is_current')|list|length }} current
+    &bull;
+    {{ (week_rows|length) - (week_rows|selectattr('is_past')|list|length) - (week_rows|selectattr('is_current')|list|length) }} upcoming
+</div>
+{% endif %}
+{% endblock %}

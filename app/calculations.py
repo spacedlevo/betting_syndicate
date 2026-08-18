@@ -548,26 +548,13 @@ def get_share_per_player(db: Session, season_id: int) -> Decimal:
 def get_player_bet_balance(
     db: Session,
     player_id: int,
-    season_id: Optional[int] = None
+    season_id: int | None = None
 ) -> Decimal:
     """
     Calculate the betting budget available for a player.
 
-    Budget = ROUNDUP(weeks / 6) × (weekly_betting_budget / 2 × 6) - bets_placed
-
-    Uses half the team's weekly betting budget as each player's per-week share,
-    assuming they are typically paired. Reads weekly_betting_budget from season config.
-
-    Args:
-        db: Database session
-        player_id: Player ID
-        season_id: Optional season filter
-
-    Returns:
-        Available betting balance as Decimal
+    Budget = weekly_contribution × total_scheduled_weeks - bets_placed
     """
-    import math
-
     if season_id is None:
         season = db.query(Season).filter(Season.is_active == True).first()
     else:
@@ -576,14 +563,9 @@ def get_player_bet_balance(
     if not season:
         return Decimal('0.00')
 
-    today = date.today()
-    days_elapsed = (today - season.start_date).days
-    weeks_elapsed = days_elapsed // 7
-
-    weekly_per_player = Decimal(str(season.weekly_betting_budget)) / 2
-    budget = Decimal(math.ceil((weeks_elapsed + 1) / 6)) * weekly_per_player * 6
-
-    bets_placed = get_player_total_bets(db, player_id, season_id)
+    total_weeks = db.query(Week).filter(Week.season_id == season.id).count()
+    budget = Decimal(str(season.weekly_contribution)) * total_weeks
+    bets_placed = get_player_total_bets(db, player_id, season.id)
     return budget - bets_placed
 
 
