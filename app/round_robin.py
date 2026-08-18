@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from typing import Optional
 from dataclasses import dataclass
+from random import shuffle
 
 
 @dataclass
@@ -20,6 +21,8 @@ def generate_round_robin(player_ids: list) -> list:
     For odd N: add a dummy player (None), N rounds, with one solo per round.
     Returns list of (player1_id, player2_id_or_None) tuples.
     """
+    player_ids = list(player_ids)
+    shuffle(player_ids)
     n = len(player_ids)
     if n < 2:
         raise ValueError("Need at least 2 players to generate a schedule")
@@ -30,6 +33,7 @@ def generate_round_robin(player_ids: list) -> list:
 
     fixed = sched[0]
     rotating = list(sched[1:])  # m-1 elements
+    print(rotating)
     matches = []
 
     for _ in range(m - 1):
