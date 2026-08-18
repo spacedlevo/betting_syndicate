@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Schedule - {{ season.name }} - Betting Syndicate{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Generate Schedule</h1>
+    <span style="color: var(--text-muted);">{{ season.name }}</span>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    {% if existing_weeks > 0 %}
+    <div class="alert alert-warning">
+        This season already has <strong>{{ existing_weeks }} week(s)</strong> scheduled.
+        Generating a new schedule will replace all existing week assignments.
+        Bets linked to existing weeks will be unaffected.
+    </div>
+    {% endif %}
+
+    {% if player_count < 2 %}
+    <div class="alert alert-danger">
+        Not enough active players in this season to generate a schedule (need at least 2, have {{ player_count }}).
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <strong>{{ player_count }} active player{{ 's' if player_count != 1 }}</strong> in this season.
+        {% if player_count % 2 == 1 %}
+        With an odd number of players, the schedule will include solo weeks — one player bets alone
+        while the others rotate through pairs. Each player gets exactly one solo week per cycle.
+        {% else %}
+        With an even number of players, all weeks will be paired — no solo weeks.
+        {% endif %}
+        <br><br>
+        One full rotation cycle = <strong>{{ (player_count * (player_count + 1)) // 2 if player_count % 2 == 1 else (player_count * (player_count - 1)) // 2 }} weeks</strong>.
+    </div>
+
+    <form method="post" action="/seasons/{{ season.id }}/schedule/generate">
+        <div class="form-group">
+            <label for="schedule_start">Schedule Start Date</label>
+            <input type="date" id="schedule_start" name="schedule_start"
+                   value="{{ season.start_date.isoformat() }}" required>
+            <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                Week 1 starts on this date; each subsequent week is 7 days later.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="num_weeks">Number of Weeks</label>
+            <input type="number" id="num_weeks" name="num_weeks" min="1" max="104"
+                   value="{{ (player_count * (player_count + 1)) // 2 if player_count % 2 == 1 else (player_count * (player_count - 1)) // 2 }}"
+                   required>
+            <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                Set to a multiple of the cycle length for a perfectly balanced season.
+            </small>
+        </div>
+
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary"
+                onclick="return confirm('{% if existing_weeks > 0 %}This will replace the existing {{ existing_weeks }}-week schedule. Continue?{% else %}Generate schedule?{% endif %}')">
+                Generate Schedule
+            </button>
+            <a href="/seasons" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

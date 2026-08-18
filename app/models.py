@@ -5,6 +5,8 @@ This module defines all database tables using SQLAlchemy's declarative base.
 The ledger table is the single source of truth for all financial activity.
 """
 
+from decimal import Decimal
+
 from sqlalchemy import (
     Column, Integer, String, Boolean, Date, DateTime, Numeric,
     ForeignKey, UniqueConstraint, CheckConstraint, Text
@@ -28,6 +30,8 @@ class Season(Base):
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
+    weekly_contribution = Column(Numeric(10, 2), nullable=False, default=Decimal('5.00'), server_default='5.00')
+    weekly_betting_budget = Column(Numeric(10, 2), nullable=False, default=Decimal('27.50'), server_default='27.50')
     created_at = Column(DateTime, default=func.now(), nullable=False)
 
     # Relationships

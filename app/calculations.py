@@ -378,7 +378,7 @@ def get_season_profit_percentage(db: Session, season_id: int) -> Decimal:
     return Decimal(percentage).quantize(Decimal('0.01'))
 
 
-def get_expected_contributions(db: Session, season_id: int, weekly_amount: Decimal = Decimal('5.00')) -> Decimal:
+def get_expected_contributions(db: Session, season_id: int, weekly_amount: Optional[Decimal] = None) -> Decimal:
     """
     Calculate expected total contributions based on Mondays elapsed.
 
@@ -387,7 +387,7 @@ def get_expected_contributions(db: Session, season_id: int, weekly_amount: Decim
     Args:
         db: Database session
         season_id: Season ID
-        weekly_amount: Weekly contribution amount (default £5)
+        weekly_amount: Weekly contribution amount (defaults to season.weekly_contribution)
 
     Returns:
         Expected total contributions as Decimal
@@ -395,6 +395,9 @@ def get_expected_contributions(db: Session, season_id: int, weekly_amount: Decim
     season = db.query(Season).filter(Season.id == season_id).first()
     if not season:
         return Decimal('0.00')
+
+    if weekly_amount is None:
+        weekly_amount = Decimal(str(season.weekly_contribution))
 
     # Count Mondays since season start
     weeks_elapsed = count_mondays_since(season.start_date, date.today())
@@ -448,17 +451,17 @@ def count_mondays_since(start_date: date, end_date: date) -> int:
 def get_expected_contribution_per_player(
     db: Session,
     season_id: int,
-    weekly_amount: Decimal = Decimal('5.00')
+    weekly_amount: Optional[Decimal] = None
 ) -> Decimal:
     """
     Calculate expected contribution per player based on Mondays elapsed.
 
-    Each Monday from the season start represents one week of £5 owed.
+    Each Monday from the season start represents one week's contribution owed.
 
     Args:
         db: Database session
         season_id: Season ID
-        weekly_amount: Weekly contribution amount (default £5)
+        weekly_amount: Weekly contribution amount (defaults to season.weekly_contribution)
 
     Returns:
         Expected contribution per player as Decimal
@@ -466,6 +469,9 @@ def get_expected_contribution_per_player(
     season = db.query(Season).filter(Season.id == season_id).first()
     if not season:
         return Decimal('0.00')
+
+    if weekly_amount is None:
+        weekly_amount = Decimal(str(season.weekly_contribution))
 
     # Count Mondays since season start
     weeks_elapsed = count_mondays_since(season.start_date, date.today())
@@ -547,10 +553,10 @@ def get_player_bet_balance(
     """
     Calculate the betting budget available for a player.
 
-    Formula: ROUNDUP(weeks_since_start / 6) * 30 - bets_placed
+    Budget = ROUNDUP(weeks / 6) × (weekly_betting_budget / 2 × 6) - bets_placed
 
-    Every 6 weeks, each player gets £30 of betting budget.
-    The available balance is this budget minus what they've already bet.
+    Uses half the team's weekly betting budget as each player's per-week share,
+    assuming they are typically paired. Reads weekly_betting_budget from season config.
 
     Args:
         db: Database session
@@ -562,7 +568,6 @@ def get_player_bet_balance(
     """
     import math
 
-    # Get season start date
     if season_id is None:
         season = db.query(Season).filter(Season.is_active == True).first()
     else:
@@ -571,18 +576,14 @@ def get_player_bet_balance(
     if not season:
         return Decimal('0.00')
 
-    # Calculate weeks since start
     today = date.today()
     days_elapsed = (today - season.start_date).days
     weeks_elapsed = days_elapsed // 7
 
-    # Calculate budget: ROUNDUP(weeks / 6) * 30
-    budget = Decimal(math.ceil((weeks_elapsed + 1) / 6) * 30)
+    weekly_per_player = Decimal(str(season.weekly_betting_budget)) / 2
+    budget = Decimal(math.ceil((weeks_elapsed + 1) / 6)) * weekly_per_player * 6
 
-    # Get bets placed by this player
     bets_placed = get_player_total_bets(db, player_id, season_id)
-
-    # Available balance = budget - bets placed
     return budget - bets_placed
 
 

@@ -181,6 +181,8 @@
                     </div>
                     {% if entry.partner_name %}
                     <div class="player-partner">with {{ entry.partner_name.split(' ')[0] }}</div>
+                    {% elif entry.week_start %}
+                    <div class="player-partner" style="color: var(--warning-color);">Solo</div>
                     {% endif %}
                 </div>
                 <div class="week-info">

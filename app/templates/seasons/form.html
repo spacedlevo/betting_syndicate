@@ -33,6 +33,21 @@
                     </small>
                 </div>
 
+                <div class="form-group">
+                    <label for="weekly_contribution">Weekly Contribution per Player (£)</label>
+                    <input type="number" step="0.01" min="0.01" id="weekly_contribution"
+                           name="weekly_contribution" value="5.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="weekly_betting_budget">Weekly Betting Budget — Total (£)</label>
+                    <input type="number" step="0.01" min="0.01" id="weekly_betting_budget"
+                           name="weekly_betting_budget" value="27.50" required>
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                        Total team bet spend per week, split between the two assigned players.
+                    </small>
+                </div>
+
                 <div class="form-group" style="margin-top: 1.5rem;">
                     <button type="submit" class="btn btn-primary">Create Season</button>
                     <a href="/seasons" class="btn btn-outline">Cancel</a>

@@ -66,6 +66,8 @@ def init_db():
         for col_sql in [
             "ALTER TABLE bank_transactions ADD COLUMN is_disregarded BOOLEAN NOT NULL DEFAULT 0",
             "ALTER TABLE bank_transactions ADD COLUMN ledger_entry_id INTEGER REFERENCES ledger(id)",
+            "ALTER TABLE seasons ADD COLUMN weekly_contribution NUMERIC(10,2) NOT NULL DEFAULT 5.00",
+            "ALTER TABLE seasons ADD COLUMN weekly_betting_budget NUMERIC(10,2) NOT NULL DEFAULT 27.50",
         ]:
             try:
                 conn.execute(text(col_sql))

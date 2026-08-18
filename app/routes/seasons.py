@@ -2,6 +2,8 @@
 Season management routes.
 """
 
+from decimal import Decimal
+
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -11,7 +13,8 @@ from datetime import date
 from typing import Optional
 
 from app.database import get_db
-from app.models import Season, Player, PlayerSeason
+from app.models import Season, Player, PlayerSeason, Week, WeekAssignment
+from app.round_robin import generate_season_schedule
 
 router = APIRouter()
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
@@ -60,27 +63,28 @@ async def create_season(
     name: str = Form(...),
     start_date: date = Form(...),
     end_date: Optional[date] = Form(None),
+    weekly_contribution: Decimal = Form(Decimal('5.00')),
+    weekly_betting_budget: Decimal = Form(Decimal('27.50')),
     db: Session = Depends(get_db)
 ):
     """Create a new season."""
-    # Get selected player IDs from form
     form_data = await request.form()
     selected_player_ids = [int(pid) for pid in form_data.getlist("players")]
 
-    # Deactivate all other seasons
     db.query(Season).update({Season.is_active: False})
 
     season = Season(
         name=name,
         start_date=start_date,
         end_date=end_date,
-        is_active=True
+        is_active=True,
+        weekly_contribution=weekly_contribution,
+        weekly_betting_budget=weekly_betting_budget,
     )
     db.add(season)
     db.commit()
     db.refresh(season)
 
-    # Add selected players to the season
     for player_id in selected_player_ids:
         ps = PlayerSeason(
             player_id=player_id,
@@ -136,3 +140,76 @@ async def update_season(
         db.commit()
 
     return RedirectResponse(url="/seasons", status_code=303)
+
+
+@router.get("/{season_id}/schedule/generate", response_class=HTMLResponse)
+async def generate_schedule_form(season_id: int, request: Request, db: Session = Depends(get_db)):
+    """Show form to generate a round-robin schedule for a season."""
+    season = db.query(Season).filter(Season.id == season_id).first()
+    if not season:
+        return RedirectResponse(url="/seasons", status_code=303)
+
+    player_seasons = db.query(PlayerSeason).filter(
+        PlayerSeason.season_id == season_id,
+        PlayerSeason.is_active == True
+    ).all()
+
+    existing_weeks = db.query(Week).filter(Week.season_id == season_id).count()
+
+    return templates.TemplateResponse("seasons/generate_schedule.html", {
+        "request": request,
+        "season": season,
+        "player_count": len(player_seasons),
+        "existing_weeks": existing_weeks,
+    })
+
+
+@router.post("/{season_id}/schedule/generate")
+async def generate_schedule(
+    season_id: int,
+    schedule_start: date = Form(...),
+    num_weeks: int = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Generate a round-robin schedule, replacing any existing weeks."""
+    season = db.query(Season).filter(Season.id == season_id).first()
+    if not season:
+        return RedirectResponse(url="/seasons", status_code=303)
+
+    # Get active players in season
+    player_seasons = db.query(PlayerSeason).filter(
+        PlayerSeason.season_id == season_id,
+        PlayerSeason.is_active == True
+    ).order_by(PlayerSeason.id).all()
+
+    player_ids = [ps.player_id for ps in player_seasons]
+
+    if len(player_ids) < 2:
+        return RedirectResponse(url=f"/seasons/{season_id}/schedule/generate", status_code=303)
+
+    # Clear existing weeks and assignments for this season
+    existing_weeks = db.query(Week).filter(Week.season_id == season_id).all()
+    for week in existing_weeks:
+        db.query(WeekAssignment).filter(WeekAssignment.week_id == week.id).delete()
+    db.query(Week).filter(Week.season_id == season_id).delete()
+    db.commit()
+
+    # Generate schedule
+    slots = generate_season_schedule(player_ids, schedule_start, num_weeks)
+
+    for slot in slots:
+        week = Week(
+            season_id=season_id,
+            week_number=slot.week_number,
+            start_date=slot.start_date,
+            end_date=slot.end_date,
+        )
+        db.add(week)
+        db.flush()
+
+        db.add(WeekAssignment(week_id=week.id, player_id=slot.player1_id, assignment_order=1))
+        if slot.player2_id is not None:
+            db.add(WeekAssignment(week_id=week.id, player_id=slot.player2_id, assignment_order=2))
+
+    db.commit()
+    return RedirectResponse(url="/schedule", status_code=303)
