@@ -1,320 +1,315 @@
-# Betting Syndicate Database Documentation
+# Database
 
-## Overview
+## The core idea
 
-The betting syndicate database uses a **ledger-based accounting model**. All financial values are calculated from an immutable ledger of transactions - no stored balances.
+The database uses a **ledger-based accounting model**. No financial balances are ever stored directly — everything is calculated on the fly by summing ledger entries. Think of it like a bank statement: you don't store your balance, you add up all the credits and debits.
 
-## Core Principle
+**The `ledger` table is the single source of truth for all money.**
 
-**The `ledger` table is the single source of truth for all financial activity.**
-
-Every balance, total, and financial statistic is derived by querying the ledger table. Entries are never updated or deleted - only inserted.
+Ledger entries are never updated or deleted. If something is wrong, a correcting entry is added on top.
 
 ---
 
-## Database Schema
-
-### Entity Relationship Diagram
+## Tables at a glance
 
 ```
-┌──────────────┐       ┌──────────────────┐       ┌──────────────┐
-│   seasons    │       │  player_seasons  │       │   players    │
-├──────────────┤       ├──────────────────┤       ├──────────────┤
-│ id (PK)      │◄──────│ season_id (FK)   │───────│ id (PK)      │
-│ name         │       │ player_id (FK)   │──────►│ name         │
-│ start_date   │       │ joined_date      │       │ email        │
-│ end_date     │       │ is_active        │       │ is_active    │
-│ is_active    │       └──────────────────┘       │ created_at   │
-│ created_at   │                                  └──────────────┘
-└──────────────┘                                         │
-       │                                                 │
-       │         ┌──────────────┐                        │
-       │         │    weeks     │                        │
-       │         ├──────────────┤                        │
-       └────────►│ id (PK)      │                        │
-                 │ season_id(FK)│                        │
-                 │ week_number  │                        │
-                 │ start_date   │                        │
-                 │ end_date     │                        │
-                 │ created_at   │                        │
-                 └──────────────┘                        │
-                        │                               │
-                        │      ┌────────────────────┐   │
-                        │      │ week_assignments   │   │
-                        │      ├────────────────────┤   │
-                        └─────►│ id (PK)            │   │
-                               │ week_id (FK)       │   │
-                               │ player_id (FK)     │◄──┘
-                               │ assignment_order   │
-                               └────────────────────┘
-
-┌──────────────┐       ┌──────────────────────────────────┐
-│    bets      │       │             ledger               │
-├──────────────┤       ├──────────────────────────────────┤
-│ id (PK)      │◄──────│ id (PK)                          │
-│ week_id (FK) │       │ entry_date                       │
-│ placed_by_   │       │ entry_type                       │
-│  player_id   │       │ player_id (FK)                   │
-│ stake        │       │ season_id (FK)                   │
-│ description  │       │ week_id (FK)                     │
-│ odds         │       │ amount                           │
-│ bet_date     │       │ description                      │
-│ status       │       │ bet_id (FK)                      │
-│ result_date  │       │ created_at                       │
-│ winnings     │       │ created_by                       │
-│ notes        │       └──────────────────────────────────┘
-│ screenshot   │
-│ created_at   │
-└──────────────┘
+seasons ──────────── player_seasons ──────── players
+    │                                           │
+    └── weeks ──── week_assignments ────────────┘
+    │
+    └── ledger entries ──────────────────────── bets ─── sports
+                                                │
+bank_transactions ── player_bank_transactions ──┘
 ```
 
 ---
 
-## Tables
+## Table reference
 
 ### `seasons`
 
-Represents a betting season/year (e.g., "2025-2026"). Only one season should be active at a time.
+One row per season (e.g. "2025-2026"). Only one season is active at a time — all dashboards and calculations are scoped to it.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | INTEGER | No | Primary key |
-| name | VARCHAR(100) | No | Season name, e.g., "2025-2026" (unique) |
-| start_date | DATE | No | Season start date |
-| end_date | DATE | Yes | Season end date (null if ongoing) |
-| is_active | BOOLEAN | No | Whether this is the current active season |
-| created_at | DATETIME | No | Record creation timestamp |
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| name | VARCHAR(100) | e.g. "2025-2026 Season" — must be unique |
+| start_date | DATE | First day of the season. Should be a Monday. |
+| end_date | DATE | Optional. When this date passes, the season is frozen (read-only). |
+| is_active | BOOLEAN | Whether this is the current season. Only one should be true. |
+| weekly_contribution | NUMERIC(10,2) | How much each player pays per week. Default £5.00. |
+| weekly_betting_budget | NUMERIC(10,2) | Maximum staked per week across the syndicate. Default £27.50. |
+| created_at | DATETIME | Auto-set on creation. |
+
+**Why it exists:** Groups all activity into named time periods so you can switch between seasons and compare historical data without mixing the numbers up.
+
+---
 
 ### `players`
 
-All players who have participated in the syndicate across any season.
+Everyone who has ever played in the syndicate.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | INTEGER | No | Primary key |
-| name | VARCHAR(100) | No | Player's full name |
-| email | VARCHAR(255) | Yes | Email address (unique if provided) |
-| is_active | BOOLEAN | No | Whether player is generally active |
-| created_at | DATETIME | No | Record creation timestamp |
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| name | VARCHAR(100) | Full name |
+| email | VARCHAR(255) | Optional. Unique if provided. |
+| is_active | BOOLEAN | Inactive players are hidden from most views. |
+| created_at | DATETIME | Auto-set on creation. |
+
+**Why it exists:** Players persist across seasons. Adding someone to a new season links to their existing player record rather than duplicating it.
+
+---
 
 ### `player_seasons`
 
-Many-to-many relationship tracking which players participate in which seasons.
+Links players to the seasons they're participating in. A player can be in multiple seasons but only once per season.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | INTEGER | No | Primary key |
-| player_id | INTEGER | No | Foreign key to players |
-| season_id | INTEGER | No | Foreign key to seasons |
-| joined_date | DATE | No | Date player joined this season |
-| is_active | BOOLEAN | No | Whether player is active in this season |
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| player_id | INTEGER | FK → players |
+| season_id | INTEGER | FK → seasons |
+| joined_date | DATE | When the player joined this season |
+| is_active | BOOLEAN | Can be deactivated mid-season without removing the player entirely |
 
-**Constraints:**
-- Unique: (player_id, season_id)
+Unique constraint: (player_id, season_id) — a player can only be added to each season once.
+
+**Why it exists:** Separates "who exists in the system" from "who is playing this season". Useful when the lineup changes year to year.
+
+---
 
 ### `weeks`
 
-Weekly rounds within each season. Each week has a number and date range.
+Each season is split into numbered weeks, each covering a Mon–Sun date range.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | INTEGER | No | Primary key |
-| season_id | INTEGER | No | Foreign key to seasons |
-| week_number | INTEGER | No | Week number (1, 2, 3, ...) |
-| start_date | DATE | No | Week start date (typically Monday) |
-| end_date | DATE | No | Week end date (typically Sunday) |
-| created_at | DATETIME | No | Record creation timestamp |
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| season_id | INTEGER | FK → seasons |
+| week_number | INTEGER | Sequential: 1, 2, 3, … |
+| start_date | DATE | Monday of the week |
+| end_date | DATE | Sunday of the week |
+| created_at | DATETIME | Auto-set on creation. |
 
-**Constraints:**
-- Unique: (season_id, week_number)
+Unique constraint: (season_id, week_number).
+
+**Why it exists:** Weeks are the unit of the schedule. Two players are assigned to each week, and bets can be linked back to the week they were placed in.
+
+---
 
 ### `week_assignments`
 
-Assigns two players to be responsible for placing bets each week.
+Records which two players are responsible for placing bets in a given week. Each week gets exactly two assignments (order 1 and 2), or one if it's a solo week.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | INTEGER | No | Primary key |
-| week_id | INTEGER | No | Foreign key to weeks |
-| player_id | INTEGER | No | Foreign key to players |
-| assignment_order | INTEGER | No | 1 or 2 (first or second assigned player) |
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| week_id | INTEGER | FK → weeks |
+| player_id | INTEGER | FK → players |
+| assignment_order | INTEGER | 1 or 2 (first or second assigned player) |
 
-**Constraints:**
-- Unique: (week_id, player_id)
-- Unique: (week_id, assignment_order)
-- Check: assignment_order IN (1, 2)
+Constraints:
+- (week_id, player_id) unique — a player can only appear once per week
+- (week_id, assignment_order) unique — each order slot filled only once
+- assignment_order must be 1 or 2
+
+**Why it exists:** Tracks the rotation so everyone gets their fair share of weeks placing bets. Generated by the round-robin algorithm at the start of each season.
+
+---
 
 ### `bets`
 
-Metadata about bets placed by the syndicate. Financial impact is tracked in the ledger.
+Metadata about each bet — what it was, who placed it, what happened. The money side is handled entirely by the ledger.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | INTEGER | No | Primary key |
-| week_id | INTEGER | Yes | Foreign key to weeks (nullable for imports) |
-| placed_by_player_id | INTEGER | No | Foreign key to players - who placed the bet |
-| stake | NUMERIC(10,2) | No | Amount staked |
-| description | TEXT | No | Bet description |
-| odds | VARCHAR(50) | Yes | Odds, e.g., "5/1", "2.5", "evens" |
-| bet_date | DATE | No | Date bet was placed |
-| status | VARCHAR(20) | No | 'pending', 'won', 'lost', or 'void' |
-| result_date | DATE | Yes | Date bet was settled |
-| winnings | NUMERIC(10,2) | Yes | Total return if won (stake + profit) |
-| notes | TEXT | Yes | Additional notes |
-| screenshot | VARCHAR(255) | Yes | Filename of uploaded bet slip screenshot |
-| created_at | DATETIME | No | Record creation timestamp |
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| week_id | INTEGER | FK → weeks. Nullable (historical imports may lack a week) |
+| placed_by_player_id | INTEGER | FK → players — who placed this bet |
+| stake | NUMERIC(10,2) | Amount staked. Must be > 0. |
+| description | TEXT | What the bet was on |
+| odds | VARCHAR(50) | e.g. "5/1", "2.5". Free-text, stored as-is. |
+| sport_id | INTEGER | FK → sports. Optional. |
+| bet_date | DATE | Date the bet was placed |
+| status | VARCHAR(20) | "pending", "won", "lost", or "void" |
+| result_date | DATE | When the bet was settled. Null if still pending. |
+| winnings | NUMERIC(10,2) | Total return if won (stake + profit). Null if not won. |
+| notes | TEXT | Optional extra notes |
+| is_free_bet | BOOLEAN | If true, no ledger entry is created for the stake — the bookmaker covers it. |
+| is_pot_bet | BOOLEAN | If true, the stake comes from the shared winnings pool rather than contributions. |
+| screenshot | VARCHAR(255) | Filename of an uploaded bet slip image, stored in uploads/screenshots/ |
+| created_at | DATETIME | Auto-set on creation. |
 
-**Constraints:**
-- Check: status IN ('pending', 'won', 'lost', 'void')
-- Check: stake > 0
+Constraints: status must be one of the four valid values; stake must be > 0.
+
+**Why it exists:** Acts as the "what happened" record. You can view all bets, filter by status, see the bet slip screenshot, and link through to the ledger entries the bet generated.
+
+---
 
 ### `ledger`
 
-**THE SINGLE SOURCE OF TRUTH** for all financial activity. This table is immutable.
+The financial heart of the system. Every penny in or out is recorded here.
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| id | INTEGER | No | Primary key |
-| entry_date | DATE | No | Date of the transaction |
-| entry_type | VARCHAR(20) | No | Type of entry (see below) |
-| player_id | INTEGER | No | Foreign key to players |
-| season_id | INTEGER | No | Foreign key to seasons |
-| week_id | INTEGER | Yes | Foreign key to weeks (if applicable) |
-| amount | NUMERIC(10,2) | No | Amount (+ve for money IN, -ve for money OUT) |
-| description | TEXT | Yes | Description of the entry |
-| bet_id | INTEGER | Yes | Foreign key to bets (if related to a bet) |
-| created_at | DATETIME | No | Record creation timestamp |
-| created_by | VARCHAR(100) | Yes | Who/what created this entry |
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| entry_date | DATE | When this transaction happened |
+| entry_type | VARCHAR(20) | See entry types table below |
+| player_id | INTEGER | FK → players — whose account this affects |
+| season_id | INTEGER | FK → seasons |
+| week_id | INTEGER | FK → weeks. Nullable. |
+| amount | NUMERIC(10,2) | Positive = money IN, Negative = money OUT |
+| description | TEXT | Human-readable note |
+| bet_id | INTEGER | FK → bets. Nullable — links back to the bet that caused this entry. |
+| created_at | DATETIME | Auto-set on creation. |
+| created_by | VARCHAR(100) | Optional — who or what created this entry (e.g. "import") |
 
-**Constraints:**
-- Check: entry_type IN ('contribution', 'bet_placed', 'winnings', 'bet_void', 'payout')
+**Entry types:**
 
----
+| Type | Sign | When it's created |
+|------|------|-------------------|
+| `contribution` | + | Player pays their weekly £5 |
+| `bet_placed` | - | A bet is placed with the bookmaker |
+| `winnings` | + | A bet wins — credited to the player who placed it |
+| `bet_void` | + | Bet is cancelled — stake returned to the syndicate |
+| `payout` | - | A player withdraws money from the syndicate |
 
-## Ledger Entry Types
-
-| Entry Type | Amount Sign | Description |
-|------------|-------------|-------------|
-| `contribution` | **+** (positive) | Player pays weekly contribution |
-| `bet_placed` | **-** (negative) | Bet placed, money to bookmaker |
-| `winnings` | **+** (positive) | Bet won, credited to player who placed it |
-| `bet_void` | **+** (positive) | Bet cancelled, stake returned |
-| `payout` | **-** (negative) | Player withdraws from syndicate |
+**Why it exists:** By keeping every financial event as an immutable row here, you always have a full audit trail. No number is ever "lost" and any calculation can be re-derived from scratch by querying this table.
 
 ---
 
-## Calculated Values
+### `sports`
 
-All financial values are derived from the ledger. No balances are stored.
+A simple list of sport categories for tagging bets.
 
-### Bank Balance
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| name | VARCHAR(100) | e.g. "Football", "Horse Racing". Unique. |
+| created_at | DATETIME | Auto-set on creation. |
+
+**Why it exists:** Lets you categorise bets and (in future) analyse performance by sport.
+
+---
+
+### `bank_transactions`
+
+Raw transactions imported from bank statement CSV files (Monzo, TSB, PayPal). Only rows matching known syndicate member names are imported — the rest are filtered out at import time.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| source | VARCHAR(20) | "monzo", "tsb", or "paypal" |
+| external_id | VARCHAR(255) | Transaction ID from the source. For TSB (which has no ID) a synthetic key is generated from date + description + amount. |
+| date | DATE | Transaction date |
+| name | VARCHAR(255) | Name/description from the bank |
+| amount | NUMERIC(10,2) | Positive = money in, negative = money out |
+| currency | VARCHAR(10) | Usually "GBP" |
+| transaction_type | VARCHAR(100) | Type label from the source (varies by bank) |
+| source_file | VARCHAR(255) | The CSV filename this came from |
+| is_disregarded | BOOLEAN | If true, this row has been deliberately ignored in the audit (e.g. it's not a syndicate payment) |
+| ledger_entry_id | INTEGER | FK → ledger. Null until manually or automatically matched in the audit page. |
+| created_at | DATETIME | Auto-set on creation. |
+
+Unique constraint: (source, external_id) — prevents duplicate imports.
+
+**Why it exists:** Lets you cross-check what actually arrived in the bank against what's recorded in the ledger. Useful for spotting missing contributions.
+
+---
+
+### `player_bank_transactions`
+
+Links a bank transaction to the syndicate player it belongs to.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | INTEGER | Primary key |
+| bank_transaction_id | INTEGER | FK → bank_transactions |
+| player_id | INTEGER | FK → players |
+
+Unique constraint: (bank_transaction_id, player_id).
+
+**Why it exists:** Separates the player identity lookup from the raw bank record, keeping the import flexible if a single transaction ever needs to be attributed to more than one player.
+
+---
+
+## Calculated values
+
+Nothing financial is stored except raw events. Everything you see on screen is calculated from the ledger each time.
+
+### Bank balance (the syndicate's pot)
 ```
-Bank Balance = (Paid In + Bets Won) - Bets Placed - Paid Out
+Bank Balance = (Contributions + Winnings + Void Returns) - Bets Placed - Payouts
 ```
 
-### Player's Net Position (Balance)
-Contributions minus payouts - what the player has "in" the syndicate.
-```sql
-SELECT SUM(amount) FROM ledger
-WHERE player_id = ? AND season_id = ?
-AND entry_type IN ('contribution', 'payout')
+### Expected contribution per player
+```
+Expected = number of Mondays since season start × weekly_contribution
+```
+The system counts actual Mondays elapsed, not calendar weeks, so the calculation stays accurate even if the season started mid-week.
+
+### Player bet balance (remaining budget)
+```
+Budget = weekly_contribution × total_scheduled_weeks
+Bet Balance = Budget - amount this player has staked
 ```
 
-### Total Bets Placed
-```sql
-SELECT SUM(ABS(amount)) FROM ledger
-WHERE season_id = ? AND entry_type = 'bet_placed'
+### Share of winnings per player (equal split)
+Winnings from regular bets are split equally across all active players. Pot bets are handled separately — their stakes come out of the shared pool and any returns go back in.
+```
+Share Per Player = (regular_winnings + pot_bet_winnings - pot_bet_stakes) ÷ active_player_count
 ```
 
-### Total Winnings
-```sql
-SELECT SUM(amount) FROM ledger
-WHERE season_id = ? AND entry_type = 'winnings'
+### Player payout (what they'd get if cashing out)
 ```
+Payout = (actual_contributions - expected_contribution) + share_per_player
+```
+This gives a fair exit amount: more than expected if they're ahead on payments, less if they owe, plus their cut of any winnings.
 
-### Player's Winnings (Won)
-Total winnings from bets the player placed.
-```sql
-SELECT SUM(amount) FROM ledger
-WHERE player_id = ? AND season_id = ?
-AND entry_type = 'winnings'
+### Player profit/loss
 ```
-
-### Player Profit/Loss
-```
-Profit/Loss = Won - Bets Placed
-```
-
-### Share Per Player (Equal Distribution)
-Calculated dynamically - not stored in the database.
-```
-Share Per Player = Total Winnings / Number of Active Players
-```
-
-### Expected Contribution Per Player
-Based on Mondays elapsed since season start (£5 per week).
-```
-Expected = Number of Mondays since season start × £5
-```
-*Note: Contributions are due every Monday. The system counts Mondays, not calendar weeks.*
-
-### Bet Balance (Available Budget)
-```
-Budget = ROUNDUP(weeks_since_start / 6) * 30
-Bet Balance = Budget - Bets Placed
-```
-
-### Player Payout
-What each player would receive if cashing out now.
-```
-Payout = (Balance - Expected Contribution) + Share Per Player
+Profit/Loss = winnings_from_bets_placed - total_staked
 ```
 
 ---
 
-## Screenshot Storage
+## Free bets and pot bets
 
-Bet screenshots are stored in `/uploads/screenshots/` with UUID-based filenames.
+Two special bet flags affect the accounting:
 
-**Supported formats:** JPG, JPEG, PNG, GIF, WebP
+**Free bets** (`is_free_bet = true`): The bookmaker provides the stake, so placing the bet creates no `bet_placed` ledger entry. If it wins, the winnings are recorded normally. If it's voided, there's no stake to return.
 
-**Access URL:** `/uploads/screenshots/{filename}`
-
----
-
-## Season States
-
-A season can be in one of three states:
-
-| State | Condition | Behaviour |
-|-------|-----------|-----------|
-| **Active** | `is_active = true` AND (`end_date` is null OR `end_date >= today`) | Normal operation - all actions allowed |
-| **Frozen** | `is_active = true` AND `end_date < today` | Read-only - no new bets or contributions allowed, payouts still permitted |
-| **Inactive** | `is_active = false` | Not the current season - view only |
-
-To freeze a season, set an `end_date` in the past or present. To unfreeze, remove or extend the `end_date`.
+**Pot bets** (`is_pot_bet = true`): The stake is funded from the shared winnings pool rather than from individual contributions. Stakes reduce the shared pot and any returns go back into it. This is used when the syndicate decides to reinvest winnings in a new bet rather than distributing them.
 
 ---
 
-## Data Integrity Rules
+## Screenshot storage
 
-1. **Immutability**: Ledger entries are never updated or deleted
-2. **Atomic transactions**: All related entries created in the same transaction
-3. **Foreign keys**: All relationships enforced at database level
-4. **Positive stakes**: Bet stakes must be greater than 0
-5. **Valid entry types**: Ledger entry types are constrained to valid values
-6. **Single active season**: Only one season should have `is_active = true` at a time
+Bet slip images are uploaded to `uploads/screenshots/` with UUID-based filenames (e.g. `a3f2c1d4-…jpg`). They're served at `/uploads/screenshots/{filename}`.
+
+Supported formats: JPG, JPEG, PNG, GIF, WebP.
 
 ---
 
-## File Locations
+## Season states
 
-- **Database:** `betting_syndicate.db` (SQLite, in project root)
+| State | Condition | What you can do |
+|-------|-----------|-----------------|
+| Active | `is_active = true` and no end_date, or end_date is in the future | Everything |
+| Frozen | `is_active = true` and end_date has passed | View data and record payouts only. No new bets or contributions. |
+| Inactive | `is_active = false` | View only |
+
+---
+
+## Files
+
+- **Database file:** `betting_syndicate.db` (SQLite, project root)
 - **Screenshots:** `uploads/screenshots/`
 
 ---
 
-## Related Documentation
+## Related docs
 
-- [SEASONS.md](SEASONS.md) - Season management and freezing guide
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Proxmox deployment guide
+- [SEASONS.md](SEASONS.md) — how seasons, schedules, and freezing work
+- [BETS.md](BETS.md) — bet lifecycle and winnings calculations
