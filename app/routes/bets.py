@@ -356,6 +356,30 @@ async def update_bet(
     return RedirectResponse(url=f"/bets/{bet_id}", status_code=303)
 
 
+@router.post("/{bet_id}/delete")
+async def delete_bet(bet_id: int, request: Request, db: Session = Depends(get_db)):
+    """Delete a bet and all its associated ledger entries."""
+    bet = db.query(Bet).filter(Bet.id == bet_id).first()
+    if not bet:
+        return RedirectResponse(url="/bets", status_code=303)
+
+    # Delete associated screenshot file
+    if bet.screenshot:
+        screenshot_path = UPLOAD_DIR / bet.screenshot
+        if screenshot_path.exists():
+            screenshot_path.unlink()
+
+    # Delete all associated ledger entries
+    for entry in db.query(LedgerEntry).filter(LedgerEntry.bet_id == bet_id).all():
+        db.delete(entry)
+
+    db.delete(bet)
+    db.commit()
+
+    set_flash(request, "Bet deleted.")
+    return RedirectResponse(url="/bets", status_code=303)
+
+
 @router.post("/{bet_id}/screenshot")
 async def upload_screenshot(
     bet_id: int,

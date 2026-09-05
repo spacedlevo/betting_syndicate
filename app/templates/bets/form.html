@@ -151,9 +151,16 @@
         </div>
         {% endif %}
 
-        <div class="form-group" style="margin-top: 1.5rem;">
-            <button type="submit" class="btn btn-primary">{% if bet %}Save Changes{% else %}Place Bet{% endif %}</button>
-            <a href="{% if bet %}/bets/{{ bet.id }}{% else %}/bets{% endif %}" class="btn btn-outline">Cancel</a>
+        <div class="form-group" style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary">{% if bet %}Save Changes{% else %}Place Bet{% endif %}</button>
+                <a href="{% if bet %}/bets/{{ bet.id }}{% else %}/bets{% endif %}" class="btn btn-outline">Cancel</a>
+            </div>
+            {% if bet %}
+            <form method="post" action="/bets/{{ bet.id }}/delete" onsubmit="return confirm('Delete this bet and all its ledger entries? This cannot be undone.');">
+                <button type="submit" class="btn btn-danger">Delete Bet</button>
+            </form>
+            {% endif %}
         </div>
     </form>
 </div>

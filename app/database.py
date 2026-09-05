@@ -4,7 +4,7 @@ Database connection and session management for the betting syndicate.
 This module sets up the SQLite database connection using SQLAlchemy.
 """
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -22,9 +22,21 @@ SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 # Create engine with foreign key support
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},  # Needed for SQLite
-    echo=False  # Set to True for SQL query logging during development
+    connect_args={"check_same_thread": False, "timeout": 30},
+    echo=False
 )
+
+
+@event.listens_for(engine, "connect")
+def set_sqlite_pragmas(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    try:
+        # WAL mode lets readers and writers coexist without blocking each other
+        cursor.execute("PRAGMA journal_mode=WAL")
+    except Exception:
+        pass  # DB temporarily locked at startup; WAL will apply on next connection
+    cursor.close()
+
 
 # Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
