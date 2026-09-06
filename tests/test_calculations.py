@@ -195,6 +195,47 @@ class TestSyndicateBalance:
         balance = calculations.get_syndicate_balance(db_session, sample_season.id)
         assert balance == Decimal('65.00')  # £15 - £10 + £60
 
+    def test_syndicate_balance_with_voided_bet(
+        self, db_session, sample_season, sample_week, sample_players, sample_bet
+    ):
+        """Test balance after voiding a bet returns stake to bank."""
+        for player in sample_players:
+            ledger.add_contribution(
+                db_session,
+                player_id=player.id,
+                season_id=sample_season.id,
+                amount=Decimal('5.00'),
+                entry_date=date(2025, 8, 11)
+            )
+
+        ledger.record_bet_placed(
+            db_session,
+            bet_id=sample_bet.id,
+            player_id=sample_players[0].id,
+            season_id=sample_season.id,
+            week_id=sample_week.id,
+            stake=Decimal('10.00'),
+            entry_date=date(2025, 8, 12)
+        )
+
+        # Balance drops after bet placed
+        balance_after_bet = calculations.get_syndicate_balance(db_session, sample_season.id)
+        assert balance_after_bet == Decimal('5.00')  # £15 - £10
+
+        ledger.record_bet_void(
+            db_session,
+            bet_id=sample_bet.id,
+            player_id=sample_players[0].id,
+            season_id=sample_season.id,
+            week_id=sample_week.id,
+            stake=Decimal('10.00'),
+            entry_date=date(2025, 8, 13)
+        )
+
+        # Stake returned: balance back to £15
+        balance_after_void = calculations.get_syndicate_balance(db_session, sample_season.id)
+        assert balance_after_void == Decimal('15.00')  # £15 - £10 + £10
+
 
 class TestPlayerTotals:
     """Tests for calculating player-specific totals."""

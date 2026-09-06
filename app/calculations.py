@@ -61,8 +61,16 @@ def get_syndicate_balance(db: Session, season_id: Optional[int] = None) -> Decim
         payouts_query = payouts_query.filter(LedgerEntry.season_id == season_id)
     paid_out = payouts_query.scalar() or Decimal('0.00')
 
-    # Bank Balance = (Paid In + Bets Won) - Bets Placed - Paid Out
-    balance = (Decimal(str(paid_in)) + Decimal(str(bets_won))) - Decimal(str(bets_placed)) - Decimal(str(paid_out))
+    # Get voided bet stakes returned (stored as positive)
+    voids_query = db.query(func.sum(LedgerEntry.amount)).filter(
+        LedgerEntry.entry_type == 'bet_void'
+    )
+    if season_id is not None:
+        voids_query = voids_query.filter(LedgerEntry.season_id == season_id)
+    bets_voided = voids_query.scalar() or Decimal('0.00')
+
+    # Bank Balance = (Paid In + Bets Won + Bets Voided) - Bets Placed - Paid Out
+    balance = (Decimal(str(paid_in)) + Decimal(str(bets_won)) + Decimal(str(bets_voided))) - Decimal(str(bets_placed)) - Decimal(str(paid_out))
     return balance
 
 
